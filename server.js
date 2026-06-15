@@ -347,8 +347,8 @@ app.post('/api/banking/bill', requireAuth, (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(PORT, () => {
-    console.log(`====================================================`);
-    console.log(`⚡ APEX HORIZON SYSTEMS LIVE ON: http://localhost:${PORT}`);
-    console.log(`====================================================`);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(` APEX HORIZON SYSTEMS LIVE ON PORT: ${PORT}`);
 });
