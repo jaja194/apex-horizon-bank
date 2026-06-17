@@ -3,247 +3,582 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apex Horizon Ledger System</title>
+    <title>Apex Horizon Core Bank</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen font-sans">
+<body class="bg-gray-100 text-gray-900 font-sans antialiased">
 
-    <main class="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        
-        <header class="flex justify-between items-center border-b border-gray-800 pb-5">
-            <div>
-                <h1 class="text-2xl font-extrabold tracking-tight text-white">APEX HORIZON</h1>
-                <p class="text-xs text-emerald-500 font-mono tracking-widest uppercase">Core Ledger Portal</p>
-            </div>
-            <button onclick="alert('Session cleanup sequence triggered.')" class="text-sm bg-gray-900 border border-gray-800 hover:bg-gray-800 px-4 py-2 rounded-lg text-gray-400 hover:text-white transition">Sign Out</button>
-        </header>
+    <div id="transaction-loader" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex flex-col items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-16 w-16 border-4 border-t-emerald-500 border-gray-300 mb-4"></div>
+        <p class="text-white font-black tracking-wider text-sm uppercase animate-pulse">Processing Core Ledger Transaction...</p>
+        <p class="text-gray-400 text-xs mt-1">Securing connection to banking node...</p>
+    </div>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-gray-900 border border-gray-800 p-5 rounded-xl shadow-sm">
-                <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Current Ledger Balance</p>
-                <h3 class="text-3xl font-mono font-bold text-white">$14,250.00</h3>
-            </div>
-            <div onclick="openGrowthModal()" class="bg-gray-900 border border-emerald-900/40 p-5 rounded-xl shadow-sm cursor-pointer hover:border-emerald-500/60 hover:bg-emerald-950/10 transition group relative overflow-hidden">
-                <p class="text-xs text-emerald-400 uppercase font-bold tracking-wider mb-1 flex items-center gap-1.5">
-                    Growth Portfolio <span class="text-[10px] bg-emerald-900/60 text-emerald-300 px-1.5 py-0.5 rounded-md animate-pulse">View Real-Time Market</span>
-                </p>
-                <h3 class="text-3xl font-mono font-bold text-white group-hover:text-emerald-400 transition">$8,500.00</h3>
-            </div>
-        </section>
-
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            <div class="bg-gray-900 border border-gray-800 p-6 rounded-xl space-y-4">
-                <h2 class="text-lg font-bold text-white tracking-tight border-b border-gray-800 pb-2">Asset Capital Allocation</h2>
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-xs text-gray-400 font-medium mb-1.5">Target Destination Portfolio Portfolio</label>
-                        <select id="assetTypeSelect" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2.5 text-sm text-gray-200 focus:outline-none focus:border-emerald-500">
-                            <option value="growthInvestments">Growth Investments (Equities, Cryptos, Index Funds)</option>
-                            <option value="stableIncome">Stable Income Portfolios</option>
-                            <option value="cashLiquidity">Cash Liquidity Reserves</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 font-medium mb-1.5">Allocation Investment Value ($)</label>
-                        <input type="number" id="allocationAmount" min="1" placeholder="Enter capitalization scale (e.g. 2500)" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2.5 text-sm text-white font-mono focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <button onclick="executeAllocation()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm py-2.5 rounded-lg transition shadow-md">Confirm Asset Allocation</button>
+    <div id="transfer-confirm-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden shadow-2xl border border-gray-100 p-6 space-y-4">
+            <h3 class="text-sm font-black uppercase tracking-wider text-amber-600">⚠️ Confirm Wire Transfer</h3>
+            <div class="bg-slate-50 p-4 rounded-xl space-y-2 border">
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Recipient Account Holder</p>
+                <p id="confirm-tx-name" class="text-base font-black text-slate-800">Searching...</p>
+                <p class="text-xs text-gray-400 font-mono mt-1">Account: <span id="confirm-tx-acc">---</span></p>
+                <div class="border-t pt-2 mt-2">
+                    <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Total Outbound Delta</p>
+                    <p id="confirm-tx-amount" class="text-xl font-black text-red-500">$0.00</p>
                 </div>
             </div>
-
-            <div class="bg-gray-900 border border-gray-800 p-6 rounded-xl space-y-4">
-                <h2 class="text-lg font-bold text-white tracking-tight border-b border-gray-800 pb-2">Invoices & Bill Settlements</h2>
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-xs text-gray-400 font-medium mb-1.5">Authorized Service Biller Vendor</label>
-                        <select id="billerNameSelect" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2.5 text-sm text-gray-200 focus:outline-none focus:border-emerald-500">
-                            <option value="Eko Electricity Distribution">Eko Electricity Distribution (EKEDP)</option>
-                            <option value="Ikeja Electric Asset Ledger">Ikeja Electric Private Ledger</option>
-                            <option value="Starlink Satellite Data Plan">Starlink Infrastructure Data Router</option>
-                            <option value="Moving Day Logistics Channel">Moving Day Corporate Logistics</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 font-medium mb-1.5">Settlement Voucher Value ($)</label>
-                        <input type="number" id="billAmount" min="1" placeholder="Enter exact invoice bill cost (e.g. 450)" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2.5 text-sm text-white font-mono focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <button onclick="executeBillPayment()" class="w-full bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 font-semibold text-sm py-2.5 rounded-lg transition shadow-sm">Authorize Bill Settlement</button>
-                </div>
+            <div class="flex space-x-3 justify-end">
+                <button id="cancel-transfer-btn" class="text-xs font-bold uppercase tracking-wider px-4 py-2.5 text-gray-500 hover:text-slate-700">Cancel</button>
+                <button id="execute-transfer-btn" class="bg-slate-800 text-white font-bold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl hover:bg-slate-700 transition">Authorize Send</button>
             </div>
-
-        </section>
-    </main>
-
-    <div id="growthModal" class="fixed inset-0 bg-black/85 hidden flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-        <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl max-w-xl w-full max-h-[85vh] flex flex-col shadow-2xl">
-            
-            <div class="flex justify-between items-center border-b border-gray-800 pb-4 mb-4 flex-shrink-0">
-                <div>
-                    <h2 class="text-xl font-black text-white flex items-center gap-2">📈 Live Growth Asset Matrix</h2>
-                    <p class="text-xs text-gray-400">Dynamic simulated real-time valuation feed ticker arrays</p>
-                </div>
-                <button onclick="closeGrowthModal()" class="text-gray-500 hover:text-white text-3xl font-light focus:outline-none">&times;</button>
-            </div>
-
-            <div class="space-y-6 overflow-y-auto pr-1 flex-1 custom-scrollbar" id="modalHoldingsContainer">
-                <p class="text-sm text-center text-gray-500 py-6 animate-pulse">Synchronizing centralized market calculations...</p>
-            </div>
-
-            <div class="border-t border-gray-800 pt-4 mt-4 flex-shrink-0">
-                <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">Liquidate Portfolio Capital back to Current Ledger</h3>
-                <div class="flex gap-2">
-                    <input type="number" id="withdrawAssetAmount" min="1" placeholder="Enter redemption volume ($)" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-white font-mono text-sm focus:outline-none focus:border-emerald-500">
-                    <button onclick="executeAssetWithdrawal('growthInvestments')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-5 py-2.5 rounded-lg transition whitespace-nowrap shadow-md">Confirm Payout Liquidation</button>
-                </div>
-            </div>
-
         </div>
     </div>
 
-    <script>
-        function openGrowthModal() {
-            document.getElementById('growthModal').classList.remove('hidden');
-            const container = document.getElementById('modalHoldingsContainer');
+    <div id="check-confirm-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden shadow-2xl border border-gray-100 p-6 space-y-4">
+            <h3 class="text-sm font-black uppercase tracking-wider text-emerald-600">📑 Verify Check Deposit Asset</h3>
+            <div class="bg-slate-50 p-4 rounded-xl space-y-2 border">
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Check Issuer (Giver)</p>
+                <p id="confirm-chk-giver" class="text-base font-black text-slate-800">Searching...</p>
+                <p class="text-xs text-gray-400 font-mono mt-1">Issuer Account: <span id="confirm-chk-acc">---</span></p>
+                <p class="text-xs text-gray-400 font-mono">Check Reference Token: #<span id="confirm-chk-num">---</span></p>
+                <div class="border-t pt-2 mt-2">
+                    <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Total Credited Inbound</p>
+                    <p id="confirm-chk-amount" class="text-xl font-black text-emerald-600">$0.00</p>
+                </div>
+            </div>
+            <div class="flex space-x-3 justify-end">
+                <button id="cancel-check-btn" class="text-xs font-bold uppercase tracking-wider px-4 py-2.5 text-gray-500 hover:text-slate-700">Reject Check</button>
+                <button id="execute-check-btn" class="bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl hover:bg-emerald-500 transition">Confirm Deposit</button>
+            </div>
+        </div>
+    </div>
 
-            fetch('/api/banking/assets')
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success) {
-                        container.innerHTML = `<p class="text-red-400 text-xs text-center py-4">Error sync indexing failed.</p>`;
-                        return;
-                    }
-
-                    const b = data.breakdown;
-                    container.innerHTML = `
-                        ${renderCategorySection("Stocks & Corporate Equities", b.stocks)}
-                        ${renderCategorySection("Decentralized Cryptocurrency Assets", b.crypto)}
-                        ${renderCategorySection("Index Mutual Funds & Pool ETFs", b.mutualFunds)}
-                        ${renderCategorySection("Fixed Yield Sovereign Bonds & Debt Bonds", b.bonds)}
-                        
-                        <div class="flex justify-between items-center p-3 bg-gray-950 rounded-xl border border-gray-800 mt-4">
-                            <span class="text-sm text-gray-400 font-medium">Aggregate Structural Net Portfolio Asset Worth:</span>
-                            <span class="text-lg font-mono font-bold text-emerald-400">$${data.totalGrowthBalance}</span>
-                        </div>
-                    `;
-                })
-                .catch(err => {
-                    container.innerHTML = `<p class="text-red-400 text-xs text-center py-4">Network link timed out.</p>`;
-                });
-        }
-
-        function renderCategorySection(title, list) {
-            return `
-                <div class="space-y-2">
-                    <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest bg-gray-950/60 px-2 py-1 rounded border-l-2 border-emerald-500">${title}</h4>
-                    <div class="grid grid-cols-1 gap-2">
-                        ${list.map(item => {
-                            const isProfit = item.percentageChange.startsWith('+');
-                            const indicatorColor = isProfit ? 'text-emerald-400' : 'text-rose-500';
-                            const trendBackground = isProfit ? 'bg-emerald-950/10 border-emerald-900/30' : 'bg-rose-950/10 border-rose-900/30';
-                            
-                            return `
-                                <div class="flex justify-between items-center p-3 border rounded-xl ${trendBackground} transition-all duration-200">
-                                    <div>
-                                        <p class="text-sm font-semibold text-white tracking-tight">${item.name}</p>
-                                        <p class="text-[11px] font-mono text-gray-500">Base Capital: $${item.baseline}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-sm font-bold font-mono text-white">$${item.currentWorth}</p>
-                                        <p class="text-xs font-extrabold font-mono ${indicatorColor}">${item.percentageChange}</p>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
+    <div id="details-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden shadow-2xl border border-gray-100">
+            <div class="bg-slate-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-sm font-black uppercase tracking-wider text-slate-700">Transaction Details</h3>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-slate-600 font-bold text-lg outline-none">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Transaction ID</label>
+                        <p id="modal-id" class="text-xs font-mono font-bold text-slate-800 mt-0.5">TXN-000000</p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Transfer Method</label>
+                        <p id="modal-method" class="text-xs font-semibold text-slate-700 mt-0.5">P2P Wire</p>
                     </div>
                 </div>
-            `;
-        }
+                <div class="grid grid-cols-2 gap-4 border-t pt-2 border-gray-100">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Associated Party</label>
+                        <p id="modal-party" class="text-xs font-bold text-slate-800 mt-0.5">Loading...</p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Account Number</label>
+                        <p id="modal-account" class="text-xs font-mono text-slate-600 mt-0.5">*******000</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 border-t pt-2 border-gray-100">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Processing Date</label>
+                        <p id="modal-date" class="text-xs font-medium text-slate-600 mt-0.5">2026-00-00</p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Execution Time</label>
+                        <p id="modal-time" class="text-xs font-mono text-slate-600 mt-0.5">00:00:00</p>
+                    </div>
+                </div>
+                <div class="border-t pt-2 border-gray-100">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Ledger Delta Balance</label>
+                    <p id="modal-amount" class="text-lg font-black mt-0.5">$0.00</p>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-gray-100 flex justify-end">
+                <button id="close-modal-footer" class="bg-slate-800 text-white font-bold text-xs uppercase tracking-wider px-4 py-2 rounded-xl hover:bg-slate-700 transition">Close Trace Record</button>
+            </div>
+        </div>
+    </div>
 
-        function closeGrowthModal() {
-            document.getElementById('growthModal').classList.add('hidden');
-        }
+    <div id="auth-screen" class="fixed inset-0 bg-slate-900 flex items-center justify-center p-4 z-30">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
+            <h2 id="auth-title" class="text-2xl font-black text-center tracking-tight text-slate-800">APEX HORIZON ACCESS</h2>
+            <p id="auth-subtitle" class="text-xs text-center text-gray-400 uppercase tracking-widest mt-1 mb-6">Secure Client Authorization</p>
+            
+            <form id="auth-form" onsubmit="return false;" class="space-y-4">
+                <div id="register-fields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Account Holder Name</label>
+                        <input type="text" id="reg-name" class="w-full border rounded-xl p-3 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Account Class</label>
+                        <select id="reg-type" class="w-full border bg-white rounded-xl p-3 text-sm outline-none">
+                            <option value="Premium Checking Portfolio">Premium Checking Portfolio</option>
+                            <option value="High-Yield Vault Account">High-Yield Vault Account</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Initial Funding Deposit ($)</label>
+                        <input type="number" id="reg-balance" step="0.01" placeholder="e.g., 5000.00" class="w-full border rounded-xl p-3 text-sm outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Email Address</label>
+                    <input type="email" id="auth-email" class="w-full border rounded-xl p-3 text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Access Password</label>
+                    <input type="password" id="auth-password" class="w-full border rounded-xl p-3 text-sm outline-none">
+                </div>
+                <button type="button" id="auth-btn" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold p-3.5 rounded-xl transition text-sm tracking-wide">Authenticate Account</button>
+            </form>
+            <p id="auth-feedback" class="mt-4 text-center text-xs font-bold hidden"></p>
+            <div class="mt-6 pt-4 border-t text-center">
+                <button id="toggle-auth" type="button" class="text-xs text-emerald-600 hover:underline font-semibold">Need a dynamic account? Register here</button>
+            </div>
+        </div>
+    </div>
 
-        /* ==========================================================================
-           GUARD CLAUSE VALIDATION LOGIC MODULE DISPATCH CORES
-           ========================================================================== */
-        function executeAllocation() {
-            const amountField = document.getElementById('allocationAmount');
-            const typeField = document.getElementById('assetTypeSelect');
+    <div id="bank-dashboard" class="hidden min-h-screen flex flex-col">
+        <nav class="bg-slate-800 text-white px-6 py-4 shadow-md flex justify-between items-center">
+            <span class="font-black tracking-wider text-emerald-400">APEX CORE ENGINE</span>
+            <div class="flex items-center space-x-4">
+                <span id="nav-user-label" class="text-sm font-medium">Loading User...</span>
+                <button id="logout-trigger" class="bg-red-500 hover:bg-red-600 text-xs px-3 py-1.5 rounded-lg font-bold transition">Exit Securely</button>
+            </div>
+        </nav>
 
-            if (!amountField || !amountField.value || parseFloat(amountField.value) <= 0) {
-                alert("Operation Validation Halt: Please state a valid numerical fund allocation amount.");
-                if(amountField) amountField.focus();
+        <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 id="welcome-header" class="text-2xl font-extrabold text-slate-800">Secure Environment</h1>
+                    <p class="text-xs text-gray-400 uppercase tracking-widest mt-0.5">Account Number: <span id="display-acc-num" class="font-mono text-sm font-bold text-slate-700">----------</span></p>
+                </div>
+                <span id="display-acc-class" class="px-4 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-full self-start md:self-auto"></span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Current Account Balance</span>
+                    <h2 id="display-balance" class="text-4xl font-black text-slate-800 tracking-tight mt-2">$0.00</h2>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Growth Investment Portfolio</span>
+                    <h2 id="display-investments" class="text-4xl font-black text-emerald-600 tracking-tight mt-2">$0.00</h2>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="space-y-6 lg:col-span-1">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-3">P2P Account Wire</h3>
+                        <form id="op-transfer-form" onsubmit="return false;" class="space-y-3">
+                            <input type="text" id="tx-target-acc" placeholder="Target Account Number" class="w-full text-xs border rounded-xl p-3 outline-none focus:ring-2 focus:ring-slate-800">
+                            <input type="number" id="tx-amount" step="0.01" placeholder="Transfer Amount ($)" class="w-full text-xs border rounded-xl p-3 outline-none focus:ring-2 focus:ring-slate-800">
+                            <button type="submit" class="w-full bg-slate-800 text-white font-bold text-xs p-3 rounded-xl hover:bg-slate-700 transition">Execute Ledger Wire</button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
+                        <div>
+                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-2">User A: Create Check Asset</h3>
+                            <div class="flex space-x-2">
+                                <input type="number" id="issue-check-amount" step="0.01" placeholder="Check Value ($)" class="w-1/2 text-xs border rounded-xl p-3 outline-none">
+                                <button id="issue-check-btn" class="w-1/2 bg-blue-600 text-white font-bold text-[11px] p-2 rounded-xl hover:bg-blue-500 transition">Generate Check</button>
+                            </div>
+                            <p id="issued-check-display" class="mt-2 text-xs font-bold text-blue-600 hidden"></p>
+                        </div>
+                        
+                        <div class="border-t pt-3">
+                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-2">User B: Check Remote Capture</h3>
+                            <form id="op-deposit-form" onsubmit="return false;" class="space-y-3">
+                                <input type="text" id="dep-check-number" placeholder="Input 6-Digit Check Number" class="w-full text-xs border rounded-xl p-3 outline-none">
+                                <button type="submit" class="w-full bg-emerald-600 text-white font-bold text-xs p-3 rounded-xl hover:bg-emerald-500 transition">Capture & Scan Check</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-3">Fund Asset Portfolio</h3>
+                        <form id="op-invest-form" onsubmit="return false;" class="space-y-3">
+                            <input type="number" id="inv-amount" min="1" step="0.01" placeholder="Capital Allocation Value ($)" class="w-full text-xs border rounded-xl p-3 outline-none">
+                            <button type="submit" class="w-full bg-blue-600 text-white font-bold text-xs p-3 rounded-xl hover:bg-blue-500 transition">Allocate Capital Assets</button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-3">Utility Settlement</h3>
+                        <form id="op-bill-form" onsubmit="return false;" class="space-y-3">
+                            <input type="text" id="bill-name" placeholder="Biller Name (e.g. Electric Corp)" class="w-full text-xs border rounded-xl p-3 outline-none">
+                            <input type="number" id="bill-amount" min="1" step="0.01" placeholder="Settlement Amount ($)" class="w-full text-xs border rounded-xl p-3 outline-none">
+                            <button type="submit" class="w-full bg-amber-600 text-white font-bold text-xs p-3 rounded-xl hover:bg-amber-500 transition">Settle Bill Balance</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 lg:col-span-2 flex flex-col">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-4">Functional Transaction History Ledger</h3>
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="border-b border-gray-100 text-gray-400 font-bold uppercase">
+                                    <th class="pb-3">Reference Information</th>
+                                    <th class="pb-3">Processing Date</th>
+                                    <th class="pb-3 text-right">Ledger Delta Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledger-rows" class="divide-y divide-gray-50">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let accessModeLogin = true;
+        let pendingTransferPayload = null;
+        let pendingCheckPayload = null;
+
+        // Form View Toggle Handler
+        document.getElementById('toggle-auth').addEventListener('click', () => {
+            accessModeLogin = !accessModeLogin;
+            document.getElementById('register-fields').classList.toggle('hidden', accessModeLogin);
+            document.getElementById('auth-title').innerText = accessModeLogin ? "APEX HORIZON ACCESS" : "CREATE LEDGER VAULT";
+            document.getElementById('auth-btn').innerText = accessModeLogin ? "Authenticate Account" : "Deploy Core Vault Structure";
+            document.getElementById('toggle-auth').innerText = accessModeLogin ? "Need a dynamic account? Register here" : "Return to security credential gateway";
+        });
+
+        // Auth Submit handler
+        document.getElementById('auth-btn').addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const feedback = document.getElementById('auth-feedback');
+            
+            if (!email || !password) {
+                alert("Please complete required credentials.");
                 return;
             }
 
-            fetch('/api/banking/allocate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: amountField.value, assetType: typeField.value })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Allocation Pipeline Execution Complete.");
-                    window.location.reload();
+            feedback.className = "mt-4 text-center text-xs font-bold text-gray-400 animate-pulse";
+            feedback.innerText = "Interrogating banking security system...";
+
+            const url = accessModeLogin ? '/api/auth/login' : '/api/auth/signup';
+            const body = accessModeLogin ? { email, password } : { 
+                email, password, 
+                fullName: document.getElementById('reg-name').value, 
+                accountType: document.getElementById('reg-type').value,
+                initialBalance: document.getElementById('reg-balance').value 
+            };
+
+            try {
+                const res = await fetch(url, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(body) 
+                });
+                const json = await res.json();
+
+                if (res.ok) {
+                    if (accessModeLogin) {
+                        document.getElementById('auth-screen').classList.add('hidden');
+                        document.getElementById('bank-dashboard').classList.remove('hidden');
+                        updateDashboardState();
+                    } else {
+                        alert(json.message);
+                        document.getElementById('toggle-auth').click();
+                        document.getElementById('auth-form').reset();
+                    }
                 } else {
-                    alert("Validation Error: " + data.message);
+                    feedback.className = "mt-4 text-center text-xs font-bold text-red-500";
+                    feedback.innerText = json.message;
+                }
+            } catch(err) {
+                feedback.className = "mt-4 text-center text-xs font-bold text-red-500";
+                feedback.innerText = "Connection fault encountered.";
+            }
+        });
+
+        // Pull and Redraw State Updates on Dashboard UI
+        async function updateDashboardState() {
+            try {
+                const res = await fetch('/api/account');
+                if (!res.ok) throw new Error("Verification loss.");
+                const u = await res.json();
+
+                document.getElementById('nav-user-label').innerText = u.fullName;
+                document.getElementById('welcome-header').innerText = u.fullName;
+                document.getElementById('display-acc-num').innerText = u.accountNumber;
+                document.getElementById('display-acc-class').innerText = `🔒 ${u.accountType}`;
+                document.getElementById('display-balance').innerText = `$${u.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                document.getElementById('display-investments').innerText = `$${u.investmentPortfolio.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+                const tbody = document.getElementById('ledger-rows');
+                tbody.innerHTML = '';
+                
+                u.recentTransactions.forEach(tx => {
+                    const isDebit = tx.amount < 0;
+                    const colorClass = isDebit ? 'text-red-500' : 'text-emerald-500';
+                    const sign = isDebit ? '' : '+';
+                    const formattedAmount = `${sign}$${Math.abs(tx.amount).toFixed(2)}`;
+
+                    const rawAcc = tx.accountNumber || '**********';
+                    const maskedAccount = rawAcc.length >= 10 ? '*******' + rawAcc.slice(-3) : rawAcc;
+
+                    tbody.innerHTML += `
+                        <tr class="transaction-row hover:bg-gray-50 transition cursor-pointer"
+                            data-id="${tx.id || 'TXN-UNKNOWN'}"
+                            data-party="${tx.partyName || 'External Node'}"
+                            data-account="${maskedAccount}"
+                            data-method="${tx.method || 'System Electronic'}"
+                            data-date="${tx.date}"
+                            data-time="${tx.time || '12:00:00'}"
+                            data-amount="${formattedAmount}"
+                            data-color="${colorClass}">
+                            <td class="py-3 font-semibold text-slate-800">
+                                ${tx.merchant} 
+                                <span class="block text-[10px] text-gray-400 tracking-wide font-normal">${tx.method || 'System Electronic'}</span>
+                            </td>
+                            <td class="py-3 text-gray-400 font-mono">${tx.date}</td>
+                            <td class="py-3 text-right font-mono font-bold ${colorClass}">
+                                ${isDebit ? '-' : '+'}${formattedAmount}
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch(e) {
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('bank-dashboard').classList.add('hidden');
+            }
+        }
+
+        // Standard Operation Helper Linker (7-second loader simulation window)
+        function bindFormToEngine(formId, apiEndpoint, fieldsExtractor) {
+            const formElement = document.getElementById(formId);
+            formElement.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const payload = fieldsExtractor();
+                
+                const loader = document.getElementById('transaction-loader');
+                if (loader) loader.classList.remove('hidden');
+
+                try {
+                    const res = await fetch(apiEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+
+                    setTimeout(() => {
+                        if (loader) loader.classList.add('hidden');
+                        alert(data.message);
+                        if (res.ok) {
+                            formElement.reset();
+                            updateDashboardState();
+                        }
+                    }, 7000);
+                } catch(err) {
+                    setTimeout(() => { if (loader) loader.classList.add('hidden'); }, 7000);
                 }
             });
         }
 
-        function executeBillPayment() {
-            const amountField = document.getElementById('billAmount');
-            const billerField = document.getElementById('billerNameSelect');
+        bindFormToEngine('op-invest-form', '/api/banking/invest', () => ({ amount: document.getElementById('inv-amount').value }));
+        bindFormToEngine('op-bill-form', '/api/banking/bill', () => ({ billerName: document.getElementById('bill-name').value, amount: document.getElementById('bill-amount').value }));
 
-            if (!amountField || !amountField.value || parseFloat(amountField.value) <= 0) {
-                alert("Operation Validation Halt: Please supply an execution dollar value figure prior to confirming bill payment.");
-                if(amountField) amountField.focus();
+        // ================= DYNAMIC LOOKUPS & PIPELINE HANDLERS =================
+
+        // 1. Intercept Transfer Form to Perform Recipient Lookup First
+        document.getElementById('op-transfer-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const accountNumber = document.getElementById('tx-target-acc').value.trim();
+            const amount = document.getElementById('tx-amount').value;
+
+            if (!accountNumber || !amount) {
+                alert("Transaction Blocked: Complete both target account and amount values.");
                 return;
             }
 
-            fetch('/api/banking/bill', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: amountField.value, billerName: billerField.value })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Utility Invoice Ledger Settlement Confirmed.");
-                    window.location.reload();
-                } else {
-                    alert("Validation Error: " + data.message);
+            try {
+                const lookupRes = await fetch(`/api/banking/lookup-account?accountNumber=${encodeURIComponent(accountNumber)}`);
+                const data = await lookupRes.json();
+
+                if (!lookupRes.ok) {
+                    alert(`Verification Failed: ${data.message || 'Unknown account exception.'}`);
+                    return;
                 }
-            });
-        }
 
-        function executeAssetWithdrawal(assetType) {
-            const amountField = document.getElementById('withdrawAssetAmount');
+                pendingTransferPayload = { targetAccountNumber: accountNumber, amount: amount };
 
-            if (!amountField || !amountField.value || parseFloat(amountField.value) <= 0) {
-                alert("Operation Validation Halt: Please dictate the exact valuation weight configuration to redeem.");
-                amountField.focus();
+                document.getElementById('confirm-tx-name').innerText = data.fullName;
+                document.getElementById('confirm-tx-acc').innerText = accountNumber;
+                document.getElementById('confirm-tx-amount').innerText = `$${parseFloat(amount).toFixed(2)}`;
+
+                document.getElementById('transfer-confirm-modal').classList.remove('hidden');
+            } catch(err) {
+                alert("Network Fault: Unable to reach verification loop node.");
+            }
+        });
+
+        document.getElementById('execute-transfer-btn').addEventListener('click', async () => {
+            document.getElementById('transfer-confirm-modal').classList.add('hidden');
+            const loader = document.getElementById('transaction-loader');
+            if (loader) loader.classList.remove('hidden');
+
+            try {
+                const res = await fetch('/api/banking/transfer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pendingTransferPayload)
+                });
+                const data = await res.json();
+
+                setTimeout(() => {
+                    if (loader) loader.classList.add('hidden');
+                    alert(data.message);
+                    if (res.ok) {
+                        document.getElementById('op-transfer-form').reset();
+                        updateDashboardState();
+                    }
+                }, 7000);
+            } catch(e) {
+                setTimeout(() => { if (loader) loader.classList.add('hidden'); }, 7000);
+            }
+        });
+
+        document.getElementById('cancel-transfer-btn').addEventListener('click', () => {
+            document.getElementById('transfer-confirm-modal').classList.add('hidden');
+            pendingTransferPayload = null;
+        });
+
+        // 2. USER A: Issue Tokenized Check Block
+        document.getElementById('issue-check-btn').addEventListener('click', async () => {
+            const amount = document.getElementById('issue-check-amount').value;
+            if (!amount) {
+                alert("Input a target value to back the check token.");
                 return;
             }
 
-            fetch('/api/banking/withdraw-asset', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: amountField.value, assetType: assetType })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Asset Liquidation Approved: Ledger updated successfully.");
-                    closeGrowthModal();
-                    window.location.reload();
+            try {
+                const res = await fetch('/api/banking/issue-check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    const blockDisplay = document.getElementById('issued-check-display');
+                    blockDisplay.innerText = `Token Check Number Generated: ${data.checkNumber}`;
+                    blockDisplay.classList.remove('hidden');
+                    document.getElementById('issue-check-amount').value = '';
+                    updateDashboardState();
                 } else {
-                    alert("Validation Error: " + data.message);
+                    alert(data.message);
                 }
-            });
-        }
+            } catch(err) {
+                alert("Failed to assign check tracking token.");
+            }
+        });
+
+        // 3. USER B: Check Capture Verification Interceptor
+        document.getElementById('op-deposit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const checkNumber = document.getElementById('dep-check-number').value.trim();
+
+            if (!checkNumber) {
+                alert("Please input a valid 6-Digit Check number asset.");
+                return;
+            }
+
+            try {
+                const lookupRes = await fetch(`/api/banking/lookup-check?checkNumber=${encodeURIComponent(checkNumber)}`);
+                const data = await lookupRes.json();
+
+                if (!lookupRes.ok) {
+                    alert(`Check Capture Error: ${data.message || 'Invalid tracking loop response.'}`);
+                    return;
+                }
+
+                pendingCheckPayload = { checkNumber: checkNumber };
+
+                document.getElementById('confirm-chk-giver').innerText = data.check.giverName;
+                document.getElementById('confirm-chk-acc').innerText = data.check.giverAccount;
+                document.getElementById('confirm-chk-num').innerText = data.check.checkNumber;
+                document.getElementById('confirm-chk-amount').innerText = `$${data.check.amount.toFixed(2)}`;
+
+                document.getElementById('check-confirm-modal').classList.remove('hidden');
+            } catch(err) {
+                alert("Remote Check capturing system failed processing routing loops.");
+            }
+        });
+
+        document.getElementById('execute-check-btn').addEventListener('click', async () => {
+            document.getElementById('check-confirm-modal').classList.add('hidden');
+            const loader = document.getElementById('transaction-loader');
+            if (loader) loader.classList.remove('hidden');
+
+            try {
+                const res = await fetch('/api/banking/deposit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pendingCheckPayload)
+                });
+                const data = await res.json();
+
+                setTimeout(() => {
+                    if (loader) loader.mathbf = true;
+                    if (loader) loader.classList.add('hidden');
+                    alert(data.message);
+                    if (res.ok) {
+                        document.getElementById('op-deposit-form').reset();
+                        updateDashboardState();
+                    }
+                }, 7000);
+            } catch(e) {
+                setTimeout(() => { if (loader) loader.classList.add('hidden'); }, 7000);
+            }
+        });
+
+        document.getElementById('cancel-check-btn').addEventListener('click', () => {
+            document.getElementById('check-confirm-modal').classList.add('hidden');
+            pendingCheckPayload = null;
+        });
+
+        // Global History Modal Row Event Listener
+        document.addEventListener('click', (e) => {
+            const targetRow = e.target.closest('.transaction-row');
+            if (targetRow) {
+                document.getElementById('modal-id').innerText = targetRow.getAttribute('data-id');
+                document.getElementById('modal-party').innerText = targetRow.getAttribute('data-party');
+                document.getElementById('modal-account').innerText = targetRow.getAttribute('data-account');
+                document.getElementById('modal-method').innerText = targetRow.getAttribute('data-method');
+                document.getElementById('modal-date').innerText = targetRow.getAttribute('data-date');
+                document.getElementById('modal-time').innerText = targetRow.getAttribute('data-time');
+                
+                const color = targetRow.getAttribute('data-color');
+                const amountEl = document.getElementById('modal-amount');
+                amountEl.innerText = targetRow.getAttribute('data-amount');
+                amountEl.className = `text-lg font-black mt-0.5 ${color}`;
+                
+                document.getElementById('details-modal').classList.remove('hidden');
+            }
+        });
+
+        function closeDetailsModal() { document.getElementById('details-modal').classList.add('hidden'); }
+        document.getElementById('close-modal-btn').addEventListener('click', closeDetailsModal);
+        document.getElementById('close-modal-footer').addEventListener('click', closeDetailsModal);
+
+        document.getElementById('logout-trigger').addEventListener('click', async () => {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.reload();
+        });
+
+        document.addEventListener('DOMContentLoaded', updateDashboardState);
     </script>
 </body>
 </html>
