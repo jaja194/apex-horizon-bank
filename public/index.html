@@ -10,7 +10,7 @@
 
     <div id="transaction-loader" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex flex-col items-center justify-center z-50">
         <div class="animate-spin rounded-full h-16 w-16 border-4 border-t-emerald-500 border-gray-300 mb-4"></div>
-        <p class="text-white font-black tracking-wider text-sm uppercase animate-pulse">Processing Core Ledger Transaction...</p>
+        <p class="text-white font-black tracking-wider text-sm uppercase animate-pulse">Authorizing Vault Ledger Actions...</p>
     </div>
 
     <div id="transfer-confirm-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40">
@@ -28,12 +28,31 @@
         </div>
     </div>
 
+    <div id="investment-actions-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden shadow-2xl border">
+            <div class="bg-slate-800 p-4 text-white flex justify-between items-center">
+                <h3 class="text-xs font-black uppercase tracking-widest text-emerald-400">Wealth Management Hub</h3>
+                <button id="close-actions-modal-btn" class="text-gray-400 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <button id="trigger-buy-view-btn" class="w-full text-left p-4 rounded-xl border border-gray-100 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 group transition">
+                    <span class="block text-xs font-black uppercase tracking-wider text-slate-800 group-hover:text-emerald-700">1. Fund Assets Allocation</span>
+                    <span class="block text-[10px] text-gray-400 mt-0.5 normal-case">Deploy cash vault reserves into real-world stock market baskets.</span>
+                </button>
+                <button id="trigger-withdraw-view-btn" class="w-full text-left p-4 rounded-xl border border-gray-100 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 group transition">
+                    <span class="block text-xs font-black uppercase tracking-wider text-slate-800 group-hover:text-blue-700">2. Withdrawal of Investment Position</span>
+                    <span class="block text-[10px] text-gray-400 mt-0.5 normal-case">Liquidate your growth holdings to return cash balance liquidity instantly.</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="portfolio-breakdown-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40">
-        <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 overflow-hidden shadow-2xl border border-gray-100">
+        <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 overflow-hidden shadow-2xl border">
             <div class="bg-slate-800 px-6 py-4 text-white flex justify-between items-center">
                 <div>
                     <h3 class="text-sm font-black uppercase tracking-wider text-emerald-400">Active Investment Sub-Portfolio Breakdown</h3>
-                    <p class="text-[10px] text-gray-400 uppercase">Live liquid allocation asset tracking modules</p>
+                    <p class="text-[10px] text-gray-400 uppercase">Live asset metrics tracking matrix rows</p>
                 </div>
                 <button id="close-portfolio-modal-btn" class="text-gray-400 hover:text-white font-bold text-xl">&times;</button>
             </div>
@@ -49,11 +68,39 @@
                             <th class="pb-2 text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="portfolio-breakdown-rows" class="divide-y divide-gray-100">
-                        </tbody>
+                    <tbody id="portfolio-breakdown-rows" class="divide-y divide-gray-100"></tbody>
                 </table>
                 <p id="empty-portfolio-msg" class="text-center text-gray-400 py-6 text-xs hidden">No capital assets deployed in your active engine portfolio index.</p>
             </div>
+        </div>
+    </div>
+
+    <div id="allocation-buy-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden shadow-2xl border">
+            <div class="bg-slate-800 p-4 text-white flex justify-between items-center">
+                <h3 class="text-xs font-black uppercase tracking-wider text-emerald-400">Asset Capital Allocation Matrix</h3>
+                <button onclick="document.getElementById('allocation-buy-modal').classList.add('hidden')" class="text-gray-400 font-bold text-lg">&times;</button>
+            </div>
+            <form id="op-invest-form-v2" onsubmit="return false;" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">1. Choose Asset Market Sector</label>
+                    <select id="inv-sector-select" class="w-full text-xs border rounded-xl p-3 bg-white outline-none">
+                        <option value="stocks">Blue-Chip Corporate Equities (Stocks)</option>
+                        <option value="cryptos">Decentralized Tickers (Cryptocurrencies)</option>
+                        <option value="bonds">Fixed-Income Securities (Bonds)</option>
+                        <option value="mutual_funds">Diversified Asset Indexes (Mutual Funds)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">2. Target Evaluation Asset</label>
+                    <select id="inv-asset-target" class="w-full text-xs border rounded-xl p-3 bg-white font-mono font-bold outline-none"></select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">3. Capital Inbound Amount ($)</label>
+                    <input type="number" id="inv-amount-v2" step="0.01" placeholder="Enter purchase value amount..." class="w-full text-xs border rounded-xl p-3 outline-none">
+                </div>
+                <button type="submit" id="submit-asset-buy-btn" disabled class="w-full bg-slate-300 text-gray-500 font-bold text-xs p-3.5 rounded-xl cursor-not-allowed uppercase tracking-wider transition">Authorize Asset Purchase</button>
+            </form>
         </div>
     </div>
 
@@ -80,7 +127,7 @@
     <div id="auth-screen" class="fixed inset-0 bg-slate-900 flex items-center justify-center p-4 z-30">
         <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
             <h2 id="auth-title" class="text-2xl font-black text-center tracking-tight text-slate-800">APEX HORIZON ACCESS</h2>
-            <p id="auth-subtitle" class="text-xs text-center text-gray-400 uppercase tracking-widest mt-1 mb-6">Secure Client Authorization</p>
+            <p id="auth-subtitle" class="text-xs text-center text-gray-400 uppercase tracking-widest mt-1 mb-6">Secure Client Access</p>
             
             <form id="auth-form" onsubmit="return false;" class="space-y-4">
                 <div id="register-fields" class="hidden space-y-4">
@@ -97,7 +144,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Initial Funding Deposit ($)</label>
-                        <input type="number" id="reg-balance" step="0.01" placeholder="e.g., 5000.00" class="w-full border rounded-xl p-3 text-sm outline-none">
+                        <input type="number" id="reg-balance" step="0.01" placeholder="e.g., 50000.00" class="w-full border rounded-xl p-3 text-sm outline-none">
                     </div>
                 </div>
                 <div>
@@ -108,11 +155,11 @@
                     <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Access Password</label>
                     <input type="password" id="auth-password" class="w-full border rounded-xl p-3 text-sm outline-none">
                 </div>
-                <button type="button" id="auth-btn" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold p-3.5 rounded-xl text-sm">Authenticate Account</button>
+                <button type="button" id="auth-btn" class="w-full bg-slate-800 text-white font-semibold p-3.5 rounded-xl text-sm">Authenticate Account</button>
             </form>
             <p id="auth-feedback" class="mt-4 text-center text-xs font-bold hidden"></p>
             <div class="mt-6 pt-4 border-t text-center">
-                <button id="toggle-auth" type="button" class="text-xs text-emerald-600 font-semibold">Need a dynamic account? Register here</button>
+                <button id="toggle-auth" type="button" class="text-xs text-emerald-600 font-semibold">Need an account? Register here</button>
             </div>
         </div>
     </div>
@@ -121,15 +168,15 @@
         <nav class="bg-slate-800 text-white px-6 py-4 shadow-md flex justify-between items-center">
             <span class="font-black tracking-wider text-emerald-400">APEX CORE ENGINE</span>
             <div class="flex items-center space-x-4">
-                <span id="nav-user-label" class="text-sm font-medium">Loading User...</span>
-                <button id="logout-trigger" class="bg-red-500 hover:bg-red-600 text-xs px-3 py-1.5 rounded-lg font-bold">Exit Securely</button>
+                <span id="nav-user-label" class="text-sm font-medium">Loading...</span>
+                <button id="logout-trigger" class="bg-red-500 text-xs px-3 py-1.5 rounded-lg font-bold">Exit Securely</button>
             </div>
         </nav>
 
         <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
             <div class="bg-white p-6 rounded-2xl shadow-sm border flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 id="welcome-header" class="text-2xl font-extrabold text-slate-800">Secure Environment</h1>
+                    <h1 id="welcome-header" class="text-2xl font-extrabold text-slate-800">Secure Vault Environment</h1>
                     <p class="text-xs text-gray-400 uppercase tracking-widest mt-0.5">Account Number: <span id="display-acc-num" class="font-mono text-sm font-bold text-slate-700">----------</span></p>
                 </div>
                 <span id="display-acc-class" class="px-4 py-1.5 bg-emerald-50 text-emerald-700 border text-xs font-bold rounded-full"></span>
@@ -141,15 +188,13 @@
                     <h2 id="display-balance" class="text-4xl font-black text-slate-800 tracking-tight mt-2">$0.00</h2>
                 </div>
                 
-                <div id="open-portfolio-modal-trigger" class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-400 transition cursor-pointer flex flex-col justify-between relative group">
+                <div id="open-portfolio-modal-trigger" class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-400 transition cursor-pointer flex flex-col justify-between group">
                     <div class="flex justify-between items-start">
-                        <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+                        <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">
                             Growth Investment Portfolio 
-                            <span class="text-[10px] text-gray-400 normal-case font-normal group-hover:underline">(Click to inspect assets)</span>
+                            <span class="text-[10px] text-gray-400 normal-case font-normal group-hover:underline">(Inspect Allocation Shares)</span>
                         </span>
-                        <span id="display-portfolio-pnl-badge" class="text-[11px] font-black font-mono px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600">
-                            +0.00%
-                        </span>
+                        <span id="display-portfolio-pnl-badge" class="text-[11px] font-black font-mono px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600">+0.00%</span>
                     </div>
                     <div class="mt-2">
                         <h2 id="display-investments" class="text-4xl font-black text-slate-800 tracking-tight">$0.00</h2>
@@ -162,46 +207,40 @@
                 <div class="space-y-6 lg:col-span-1">
                     
                     <div class="bg-white p-5 rounded-2xl shadow-sm border">
-                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-1">Fund Asset Allocation Matrix</h3>
-                        <p class="text-[10px] text-gray-400 uppercase mb-3">Deploy capital to real world market products</p>
-                        <form id="op-invest-form-v2" onsubmit="return false;" class="space-y-3">
-                            <div>
-                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">1. Choose Asset Market Sector</label>
-                                <select id="inv-sector-select" class="w-full text-xs border rounded-xl p-3 bg-white outline-none">
-                                    <option value="stocks">Blue-Chip Corporate Equities (Stocks)</option>
-                                    <option value="cryptos">Decentralized Tickers (Cryptocurrencies)</option>
-                                    <option value="bonds">Fixed-Income Securities (Government/Corp Bonds)</option>
-                                    <option value="mutual_funds">Diversified Asset Indexes (Mutual Funds)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">2. Target Evaluation Asset</label>
-                                <select id="inv-asset-target" class="w-full text-xs border rounded-xl p-3 bg-white font-mono font-bold outline-none">
-                                    </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">3. Capital Inbound Amount ($)</label>
-                                <input type="number" id="inv-amount-v2" step="0.01" placeholder="Enter investment amount..." class="w-full text-xs border rounded-xl p-3 outline-none">
-                            </div>
-                            <button type="submit" class="w-full bg-emerald-600 text-white font-bold text-xs p-3.5 rounded-xl hover:bg-emerald-500 transition">Authorize Asset Purchase</button>
-                        </form>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border">
-                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-3">P2P Account Wire</h3>
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-1">P2P Account Wire</h3>
+                        <p class="text-[10px] text-gray-400 uppercase mb-3">Instant secure bank clearing router</p>
                         <form id="op-transfer-form" onsubmit="return false;" class="space-y-3">
                             <input type="text" id="tx-target-acc" placeholder="Target 10-Digit Account Number" class="w-full text-xs border rounded-xl p-3 outline-none">
                             <input type="number" id="tx-amount" step="0.01" placeholder="Transfer Amount ($)" class="w-full text-xs border rounded-xl p-3 outline-none">
-                            <button type="submit" class="w-full bg-slate-800 text-white font-bold text-xs p-3 rounded-xl">Execute Ledger Wire</button>
+                            <button type="submit" id="submit-p2p-btn" disabled class="w-full bg-slate-300 text-gray-500 font-bold text-xs p-3.5 rounded-xl cursor-not-allowed uppercase tracking-wider transition">Execute Ledger Wire</button>
                         </form>
                     </div>
 
                     <div class="bg-white p-5 rounded-2xl shadow-sm border">
-                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-3">Utility Settlement Terminal</h3>
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-1">Check Remote Capture Gateway</h3>
+                        <p class="text-[10px] text-gray-400 uppercase mb-3">Deposit check clearing certificate arrays</p>
+                        <form id="op-check-deposit-form" onsubmit="return false;" class="space-y-3">
+                            <input type="text" id="chk-token-ref" placeholder="Check Routing Reference Token Code (e.g. CHKP-9988)" class="w-full text-xs border rounded-xl p-3 font-mono outline-none">
+                            <input type="number" id="chk-amount" step="0.01" placeholder="Validation Check Face Amount ($)" class="w-full text-xs border rounded-xl p-3 outline-none">
+                            <button type="submit" id="submit-check-btn" disabled class="w-full bg-slate-300 text-gray-500 font-bold text-xs p-3.5 rounded-xl cursor-not-allowed uppercase tracking-wider transition">Process Mobile Check Ledger</button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-200 bg-emerald-50/40">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-1">Capital Investment Engine</h3>
+                        <p class="text-[10px] text-gray-400 uppercase mb-4">Access portfolio assets deployment vectors</p>
+                        <button id="open-investment-hub-btn" class="w-full bg-emerald-600 text-white font-bold text-xs p-3.5 rounded-xl hover:bg-emerald-500 transition shadow-sm uppercase tracking-wider">
+                            Fund Assets Investments
+                        </button>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-1">Utility Settlement Terminal</h3>
+                        <p class="text-[10px] text-gray-400 uppercase mb-3">Clear corporate invoicing bills instantly</p>
                         <form id="op-bill-form" onsubmit="return false;" class="space-y-3">
-                            <input type="text" id="bill-name" placeholder="Biller Classification (e.g. Electric Corp)" class="w-full text-xs border rounded-xl p-3 outline-none">
+                            <input type="text" id="bill-name" placeholder="Biller Classification Name (e.g. Moving Day)" class="w-full text-xs border rounded-xl p-3 outline-none">
                             <input type="number" id="bill-amount" step="0.01" placeholder="Settlement Amount ($)" class="w-full text-xs border rounded-xl p-3 outline-none">
-                            <button type="submit" class="w-full bg-amber-600 text-white font-bold text-xs p-3 rounded-xl hover:bg-amber-500 transition">Settle Bill Balance</button>
+                            <button type="submit" id="submit-bill-btn" disabled class="w-full bg-slate-300 text-gray-500 font-bold text-xs p-3.5 rounded-xl cursor-not-allowed uppercase tracking-wider transition">Settle Bill Balance</button>
                         </form>
                     </div>
                 </div>
@@ -230,25 +269,57 @@
         let pendingTransferPayload = null;
         let GLOBAL_MARKET_STATE = {};
 
-        // Toggle Auth View Screen Panel Engine
+        // UPDATE 4: Standard Validator Utility for Field Tracking Actions
+        function monitorInputValidation(inputIdsArray, submitButtonId) {
+            const btn = document.getElementById(submitButtonId);
+            const inputs = inputIdsArray.map(id => document.getElementById(id));
+
+            function evaluateState() {
+                let allValid = true;
+                inputs.forEach(input => {
+                    const val = input.value.trim();
+                    if (!val || val === '' || (input.type === 'number' && parseFloat(val) <= 0)) {
+                        allValid = false;
+                    }
+                });
+                if (allValid) {
+                    btn.disabled = false;
+                    btn.className = "w-full bg-slate-800 text-white font-bold text-xs p-3.5 rounded-xl hover:bg-slate-700 uppercase tracking-wider transition cursor-pointer";
+                    if(submitButtonId === 'submit-asset-buy-btn') {
+                        btn.className = "w-full bg-emerald-600 text-white font-bold text-xs p-3.5 rounded-xl hover:bg-emerald-500 uppercase tracking-wider transition cursor-pointer";
+                    }
+                } else {
+                    btn.disabled = true;
+                    btn.className = "w-full bg-slate-300 text-gray-500 font-bold text-xs p-3.5 rounded-xl cursor-not-allowed uppercase tracking-wider transition";
+                }
+            }
+            inputs.forEach(input => input.addEventListener('input', evaluateState));
+            inputs.forEach(input => input.addEventListener('change', evaluateState));
+        }
+
+        // Initialize verification observers
+        monitorInputValidation(['tx-target-acc', 'tx-amount'], 'submit-p2p-btn');
+        monitorInputValidation(['chk-token-ref', 'chk-amount'], 'submit-check-btn');
+        monitorInputValidation(['bill-name', 'bill-amount'], 'submit-bill-btn');
+        monitorInputValidation(['inv-amount-v2'], 'submit-asset-buy-btn');
+
+        // Toggle authentication panel components
         document.getElementById('toggle-auth').addEventListener('click', () => {
             accessModeLogin = !accessModeLogin;
             document.getElementById('register-fields').classList.toggle('hidden', accessModeLogin);
             document.getElementById('auth-title').innerText = accessModeLogin ? "APEX HORIZON ACCESS" : "CREATE LEDGER VAULT";
-            document.getElementById('auth-btn').innerText = accessModeLogin ? "Authenticate Account" : "Deploy Core Vault Structure";
-            document.getElementById('toggle-auth').innerText = accessModeLogin ? "Need a dynamic account? Register here" : "Return to credential gateway";
+            document.getElementById('auth-btn').innerText = accessModeLogin ? "Authenticate Account" : "Deploy Core Vault";
+            document.getElementById('toggle-auth').innerText = accessModeLogin ? "Need an account? Register here" : "Return to credential gateway";
         });
 
-        // Submit Security Verification Block Request Routine
         document.getElementById('auth-btn').addEventListener('click', async () => {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             const feedback = document.getElementById('auth-feedback');
-            
-            if (!email || !password) { alert("Please complete required credentials."); return; }
+            if (!email || !password) { alert("Complete required fields."); return; }
 
             feedback.className = "mt-4 text-center text-xs font-bold text-gray-400 animate-pulse";
-            feedback.innerText = "Interrogating banking security system...";
+            feedback.innerText = "Connecting to security architecture core...";
             feedback.classList.remove('hidden');
 
             const url = accessModeLogin ? '/api/auth/login' : '/api/auth/signup';
@@ -262,7 +333,6 @@
             try {
                 const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
                 const json = await res.json();
-
                 if (res.ok) {
                     if (accessModeLogin) {
                         document.getElementById('auth-screen').classList.add('hidden');
@@ -278,13 +348,9 @@
                     feedback.className = "mt-4 text-center text-xs font-bold text-red-500";
                     feedback.innerText = json.message;
                 }
-            } catch(err) {
-                feedback.className = "mt-4 text-center text-xs font-bold text-red-500";
-                feedback.innerText = "Connection fault encountered.";
-            }
+            } catch(err) { feedback.className = "mt-4 text-center text-xs font-bold text-red-500"; feedback.innerText = "Connection fault."; }
         });
 
-        // Fetch Live Market Data Array Metrics Engine
         async function pullMarketTickers() {
             try {
                 const res = await fetch('/api/banking/market-board');
@@ -292,28 +358,33 @@
                     GLOBAL_MARKET_STATE = await res.json();
                     populateAssetDropdownOptions();
                 }
-            } catch(e) { console.error("Market synchronization node dropout.", e); }
+            } catch(e) { console.error("Market tick loss.", e); }
         }
 
-        // UPDATE 4: Render Sub-options on dynamic index selectors
+        // UPDATE 1: Clean dynamic dropdown rendering engine logic
         function populateAssetDropdownOptions() {
             const sector = document.getElementById('inv-sector-select').value;
             const targetDropdown = document.getElementById('inv-asset-target');
             if (!GLOBAL_MARKET_STATE[sector]) return;
 
+            const previousSelection = targetDropdown.value;
             targetDropdown.innerHTML = '';
+            
             GLOBAL_MARKET_STATE[sector].forEach(asset => {
                 targetDropdown.innerHTML += `<option value="${asset.id}">${asset.id} - ${asset.name} ($${asset.currentPrice.toFixed(2)})</option>`;
             });
-        }
 
+            // Prevent reset jumping by locking position matches back
+            if (previousSelection && Array.from(targetDropdown.options).some(o => o.value === previousSelection)) {
+                targetDropdown.value = previousSelection;
+            }
+        }
         document.getElementById('inv-sector-select').addEventListener('change', populateAssetDropdownOptions);
 
-        // Fetch and Refresh Main App UI Layout Frame Rows Content
         async function updateDashboardState() {
             try {
                 const res = await fetch('/api/account');
-                if (!res.ok) throw new Error("Verification loss.");
+                if (!res.ok) throw new Error();
                 const u = await res.json();
 
                 document.getElementById('nav-user-label').innerText = u.fullName;
@@ -322,7 +393,6 @@
                 document.getElementById('display-acc-class').innerText = `🔒 ${u.accountType}`;
                 document.getElementById('display-balance').innerText = `$${u.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
                 
-                // UPDATE 2 & 5: Populate dynamic market evaluation numbers inside element frameworks
                 const worth = u.investmentPortfolioWorth || 0;
                 document.getElementById('display-investments').innerText = `$${worth.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
                 
@@ -340,18 +410,17 @@
                     pnlPctBadge.className = "text-[11px] font-black font-mono px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200";
                 }
 
-                // Inject Detailed Inside Rows dynamically to Portfolio Modal Interface
                 const breakdownTbody = document.getElementById('portfolio-breakdown-rows');
                 breakdownTbody.innerHTML = '';
                 
                 if (u.investments && u.investments.length > 0) {
+                    document.getElementById('empty-portfolio-msg').add;
                     document.getElementById('empty-portfolio-msg').classList.add('hidden');
                     u.investments.forEach(inv => {
                         const isProfit = inv.pnlValue >= 0;
                         const color = isProfit ? 'text-emerald-500' : 'text-red-500';
-                        
                         breakdownTbody.innerHTML += `
-                            <tr class="align-middle text-slate-700">
+                            <tr class="align-middle text-slate-700 border-b border-gray-50">
                                 <td class="py-3 font-bold">${inv.assetId}<span class="block text-[10px] text-gray-400 font-normal">${inv.assetName}</span></td>
                                 <td class="py-3 font-mono">${inv.sharesOwned.toFixed(4)}</td>
                                 <td class="py-3 font-mono">$${inv.purchasePrice.toFixed(2)}<span class="block text-[9px] text-gray-400 font-normal">Total: $${inv.totalCost.toFixed(2)}</span></td>
@@ -365,7 +434,6 @@
                     document.getElementById('empty-portfolio-msg').classList.remove('hidden');
                 }
 
-                // Standard Tx Logging Grid Redraw Array Loop out
                 const tbody = document.getElementById('ledger-rows');
                 tbody.innerHTML = '';
                 u.recentTransactions.forEach(tx => {
@@ -373,7 +441,7 @@
                     const colorClass = isDebit ? 'text-red-500' : 'text-emerald-500';
                     tbody.innerHTML += `
                         <tr class="transaction-row hover:bg-gray-50 transition cursor-pointer" data-id="${tx.id}" data-party="${tx.partyName}" data-account="${tx.accountNumber || '**********'}" data-method="${tx.method}" data-date="${tx.date}" data-time="${tx.time}" data-amount="${tx.amount}" data-color="${colorClass}">
-                            <td class="py-3 font-semibold text-slate-800">${tx.merchant} <span class="block text-[10px] text-gray-400 tracking-wide font-normal">${tx.method}</span></td>
+                            <td class="py-3 font-semibold text-slate-800">${tx.merchant} <span class="block text-[10px] text-gray-400 font-normal">${tx.method}</span></td>
                             <td class="py-3 text-gray-400 font-mono">${tx.date}</td>
                             <td class="py-3 text-right font-mono font-bold ${colorClass}">${isDebit ? '' : '+'}$${parseFloat(Math.abs(tx.amount)).toFixed(2)}</td>
                         </tr>
@@ -385,11 +453,10 @@
             }
         }
 
-        // Form Submission Processor Helper Logic Pipeline
-        function bindFormToEngine(formId, apiEndpoint, fieldsExtractor) {
+        function bindFormToEngine(formId, apiEndpoint, fieldsExtractor, submitBtnId) {
             const form = document.getElementById(formId);
             form.addEventListener('submit', async (e) => {
-                e.preventDefault();
+                e.preventDefault(); // Prevents page reload crashes entirely!
                 const payload = fieldsExtractor();
                 
                 const loader = document.getElementById('transaction-loader');
@@ -398,34 +465,39 @@
                 try {
                     const res = await fetch(apiEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     const data = await res.json();
-
                     setTimeout(() => {
                         loader.classList.add('hidden');
                         alert(data.message || data.error);
-                        if (res.ok) { form.reset(); updateDashboardState(); }
-                    }, 2000); // 2-second realistic delay instead of 7 seconds for smoother interface updates
+                        if (res.ok) { 
+                            form.reset(); 
+                            if(document.getElementById('allocation-buy-modal')) {
+                                document.getElementById('allocation-buy-modal').classList.add('hidden');
+                            }
+                            updateDashboardState(); 
+                        }
+                    }, 1500);
                 } catch(err) { loader.classList.add('hidden'); }
             });
         }
 
-        // Connect Form Elements up onto endpoint pathways
-        bindFormToEngine('op-bill-form', '/api/banking/bill', () => ({ billerName: document.getElementById('bill-name').value, amount: document.getElementById('bill-amount').value }));
+        // Form Endpoint Route Declarations
+        bindFormToEngine('op-bill-form', '/api/banking/bill', () => ({ billerName: document.getElementById('bill-name').value, amount: document.getElementById('bill-amount').value }), 'submit-bill-btn');
+        bindFormToEngine('op-check-deposit-form', '/api/banking/deposit-check', () => ({ checkToken: document.getElementById('chk-token-ref').value, amount: document.getElementById('chk-amount').value }), 'submit-check-btn');
         bindFormToEngine('op-invest-form-v2', '/api/banking/invest/buy', () => ({
             category: document.getElementById('inv-sector-select').value,
             assetId: document.getElementById('inv-asset-target').value,
             amount: document.getElementById('inv-amount-v2').value
-        }));
+        }), 'submit-asset-buy-btn');
 
-        // UPDATE 3: Portfolio Withdrawal Core Action Routine
+        // UPDATE 3: Positions Liquidation Trigger
         async function executeAssetLiquidation(assetId) {
-            if (!confirm(`Are you sure you want to withdraw and liquidate all assets in ${assetId} back into your cash wallet balance?`)) return;
+            if (!confirm(`Are you sure you want to close and liquidate your entire ${assetId} position?`)) return;
             document.getElementById('portfolio-breakdown-modal').classList.add('hidden');
             document.getElementById('transaction-loader').classList.remove('hidden');
 
             try {
                 const res = await fetch('/api/banking/invest/withdraw', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ assetId }) });
                 const data = await res.json();
-                
                 setTimeout(() => {
                     document.getElementById('transaction-loader').classList.add('hidden');
                     alert(data.message);
@@ -434,7 +506,23 @@
             } catch(e) { document.getElementById('transaction-loader').classList.add('hidden'); }
         }
 
-        // UPDATE 2: Modal visibility trigger toggle links hooks
+        // UPDATE 2: Hidden Menu Hub Visibility Handlers
+        document.getElementById('open-investment-hub-btn').addEventListener('click', () => {
+            document.getElementById('investment-actions-modal').classList.remove('hidden');
+        });
+        document.getElementById('close-actions-modal-btn').addEventListener('click', () => {
+            document.getElementById('investment-actions-modal').classList.add('hidden');
+        });
+
+        document.getElementById('trigger-buy-view-btn').addEventListener('click', () => {
+            document.getElementById('investment-actions-modal').classList.add('hidden');
+            document.getElementById('allocation-buy-modal').classList.remove('hidden');
+        });
+        document.getElementById('trigger-withdraw-view-btn').addEventListener('click', () => {
+            document.getElementById('investment-actions-modal').classList.add('hidden');
+            document.getElementById('portfolio-breakdown-modal').classList.remove('hidden');
+        });
+
         document.getElementById('open-portfolio-modal-trigger').addEventListener('click', () => {
             document.getElementById('portfolio-breakdown-modal').classList.remove('hidden');
         });
@@ -442,25 +530,24 @@
             document.getElementById('portfolio-breakdown-modal').classList.add('hidden');
         });
 
-        // P2P Account Wire Validation Lookup Interceptor Flow
+        // P2P Account Wire Lookup Mechanics
         document.getElementById('op-transfer-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const accountNumber = document.getElementById('tx-target-acc').value.trim();
             const amount = document.getElementById('tx-amount').value;
-
-            if (!accountNumber || !amount) { alert("Complete all transfer parameters."); return; }
+            if (!accountNumber || !amount) return;
 
             try {
                 const lookupRes = await fetch(`/api/banking/lookup-account?accountNumber=${encodeURIComponent(accountNumber)}`);
                 const data = await lookupRes.json();
-                if (!lookupRes.ok) { alert(`Lookup Error: ${data.message}`); return; }
+                if (!lookupRes.ok) { alert(`Wire Intercept Error: ${data.message}`); return; }
 
                 pendingTransferPayload = { targetAccountNumber: accountNumber, amount: amount };
                 document.getElementById('confirm-tx-name').innerText = data.fullName;
                 document.getElementById('confirm-tx-acc').innerText = accountNumber;
                 document.getElementById('confirm-tx-amount').innerText = `$${parseFloat(amount).toFixed(2)}`;
                 document.getElementById('transfer-confirm-modal').classList.remove('hidden');
-            } catch(err) { alert("Network lookup node trace error."); }
+            } catch(err) { alert("Network routing lookup failure."); }
         });
 
         document.getElementById('execute-transfer-btn').addEventListener('click', async () => {
@@ -473,7 +560,7 @@
                     document.getElementById('transaction-loader').classList.add('hidden');
                     alert(data.message);
                     if (res.ok) { document.getElementById('op-transfer-form').reset(); updateDashboardState(); }
-                }, 2000);
+                }, 1500);
             } catch(e) { document.getElementById('transaction-loader').classList.add('hidden'); }
         });
 
@@ -482,7 +569,6 @@
             pendingTransferPayload = null;
         });
 
-        // Global row event tracking mapper trace hook link loops
         document.addEventListener('click', (e) => {
             const row = e.target.closest('.transaction-row');
             if (row) {
@@ -502,17 +588,15 @@
             await fetch('/api/auth/logout', { method: 'POST' }); window.location.reload();
         });
 
-        // Background Engine Interval Loops (Sync Market changes smoothly every 8 seconds)
+        // Market tick synchronization heartbeat loop (runs every 10 seconds)
         setInterval(async () => {
             if (!document.getElementById('bank-dashboard').classList.contains('hidden')) {
                 await pullMarketTickers();
                 updateDashboardState();
             }
-        }, 8000);
+        }, 10000);
 
-        document.addEventListener('DOMContentLoaded', () => {
-            updateDashboardState();
-        });
+        document.addEventListener('DOMContentLoaded', () => { updateDashboardState(); });
     </script>
 </body>
 </html>

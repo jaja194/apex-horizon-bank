@@ -11,7 +11,7 @@ if (!fs.existsSync(DB_FILE)) {
     fs.writeFileSync(DB_FILE, JSON.stringify([]));
 }
 
-// Global Fictional/Simulated Real-World Market Board
+// Global Stateful Simulated Real-World Market Board
 const MARKET_BOARD = {
     stocks: [
         { id: 'AAPL', name: 'Apple Inc.', basePrice: 175.00, currentPrice: 175.00 },
@@ -43,13 +43,17 @@ const MARKET_BOARD = {
     ]
 };
 
-// Background Market Engine Fluctuation Loop
+// Simulated check circuit tracking dictionary
+let activeChecksCircuit = {
+    "CHKP-9988": { issuerId: "SYSTEM", amount: 5000.00, status: "ACTIVE" },
+    "CHKP-1122": { issuerId: "SYSTEM", amount: 2500.00, status: "ACTIVE" }
+};
+
 function simulateMarketFluctuations() {
     ['stocks', 'cryptos', 'bonds', 'mutual_funds'].forEach(category => {
         MARKET_BOARD[category].forEach(asset => {
-            // Cryptos change faster than bonds or stocks
-            const volatility = category === 'cryptos' ? 0.04 : category === 'bonds' ? 0.005 : 0.015;
-            const changePercent = (Math.random() - 0.49) * 2 * volatility; // Slight upward bias
+            const volatility = category === 'cryptos' ? 0.03 : category === 'bonds' ? 0.004 : 0.012;
+            const changePercent = (Math.random() - 0.48) * 2 * volatility; // Slight upward bias
             asset.currentPrice = Math.max(0.01, asset.currentPrice * (1 + changePercent));
         });
     });
@@ -74,7 +78,7 @@ app.use(session({
 
 const requireAuth = (req, res, next) => {
     if (!req.session || !req.session.userId) {
-        return res.status(401).json({ success: false, message: "Unauthorized client context." });
+        return res.status(401).json({ success: false, message: "Unauthorized client session." });
     }
     next();
 };
@@ -86,11 +90,11 @@ app.post('/api/auth/signup', async (req, res) => {
     const db = getDatabase();
 
     if (!email || !password || !fullName || !accountType) {
-        return res.status(400).json({ success: false, message: "Missing portfolio configuration fields." });
+        return res.status(400).json({ success: false, message: "Missing profile fields." });
     }
 
     if (db.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-        return res.status(400).json({ success: false, message: "Email signature already registered." });
+        return res.status(400).json({ success: false, message: "Email already registered." });
     }
 
     try {
@@ -105,15 +109,15 @@ app.post('/api/auth/signup', async (req, res) => {
             accountNumber,
             accountType,
             balance: parseFloat(initialBalance) || 0.00,
-            investments: [], // Sub-ledger for complex purchased wealth assets
+            investments: [],
             recentTransactions: []
         };
 
         db.push(newUser);
         saveDatabase(db);
-        res.json({ success: true, message: `Account assigned: ${accountNumber}` });
+        res.json({ success: true, message: `Account created successfully! Number: ${accountNumber}` });
     } catch (err) {
-        res.status(500).json({ success: false, message: "Encryption layer registration failure." });
+        res.status(500).json({ success: false, message: "Registration failure." });
     }
 });
 
@@ -125,7 +129,7 @@ app.post('/api/auth/login', async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: "Account not found." });
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ success: false, message: "Invalid system clearance credentials." });
+    if (!match) return res.status(401).json({ success: false, message: "Invalid credentials." });
 
     req.session.userId = user.id;
     res.json({ success: true, message: "Authorization complete." });
@@ -133,31 +137,26 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.post('/api/auth/logout', (req, res) => {
     req.session.destroy();
-    res.json({ success: true, message: "Terminal detached safely." });
+    res.json({ success: true, message: "Session detached." });
 });
 
+// ================= BANKING CORE WEB ENDPOINTS =================
 
-// ================= RE-ENGINEERED WEALTH CORE OPERATIONS =================
-
-// Market Pricing Dispatch Node
 app.get('/api/banking/market-board', requireAuth, (req, res) => {
-    simulateMarketFluctuations(); // Trigger tick fluctuation on UI pull
+    simulateMarketFluctuations();
     res.json(MARKET_BOARD);
 });
 
-// Main User Payload Calculator (Dynamic Worth Evaluator)
 app.get('/api/account', requireAuth, (req, res) => {
     simulateMarketFluctuations();
     const db = getDatabase();
     const user = db.find(u => u.id === req.session.userId);
     if (!user) return res.status(404).json({ message: "User index error." });
 
-    // Calculate real-time totals on the fly using global market tickers
     let aggregatedCostBasis = 0;
     let aggregatedCurrentWorth = 0;
 
     const populatedInvestments = (user.investments || []).map(inv => {
-        // Find current live price
         let marketAsset = null;
         for (const cat of ['stocks', 'cryptos', 'bonds', 'mutual_funds']) {
             const found = MARKET_BOARD[cat].find(a => a.id === inv.assetId);
@@ -184,8 +183,6 @@ app.get('/api/account', requireAuth, (req, res) => {
     const totalPortfolioPnlPercent = aggregatedCostBasis > 0 ? (totalPortfolioPnlValue / aggregatedCostBasis) * 100 : 0;
 
     const { password, ...safeData } = user;
-    
-    // Supplement object structure dynamically
     safeData.investments = populatedInvestments;
     safeData.investmentPortfolioWorth = aggregatedCurrentWorth;
     safeData.portfolioPnlValue = totalPortfolioPnlValue;
@@ -194,33 +191,103 @@ app.get('/api/account', requireAuth, (req, res) => {
     res.json(safeData);
 });
 
-// Update 1 & 4: Asset Purchase Execution Routing
+// P2P Lookup & Transfer Engine
+app.get('/api/banking/lookup-account', requireAuth, (req, res) => {
+    const { accountNumber } = req.query;
+    if (!accountNumber) return res.status(400).json({ success: false, message: "Missing parameter." });
+    const db = getDatabase();
+    const targetUser = db.find(u => String(u.accountNumber).trim() === String(accountNumber).trim());
+    if (!targetUser) return res.status(404).json({ success: false, message: "Target account unmatched." });
+    if (targetUser.id === req.session.userId) return res.status(400).json({ success: false, message: "Self transfers prohibited." });
+    res.json({ success: true, fullName: targetUser.fullName });
+});
+
+app.post('/api/banking/transfer', requireAuth, (req, res) => {
+    const { targetAccountNumber, amount } = req.body;
+    const transferAmount = parseFloat(amount);
+    const db = getDatabase();
+
+    const senderIndex = db.findIndex(u => u.id === req.session.userId);
+    const receiverIndex = db.findIndex(u => String(u.accountNumber).trim() === String(targetAccountNumber).trim());
+
+    if (receiverIndex === -1 || senderIndex === receiverIndex) return res.status(400).json({ success: false, message: "Account mapping collision." });
+    if (isNaN(transferAmount) || transferAmount <= 0) return res.status(400).json({ success: false, message: "Invalid amount input." });
+    if (db[senderIndex].balance < transferAmount) return res.status(400).json({ success: false, message: "Insufficient balance." });
+
+    const txnId = `TXN-${Math.floor(100000 + Math.random() * 900000)}`;
+    const dStr = new Date().toISOString().split('T')[0];
+    const tStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+    db[senderIndex].balance -= transferAmount;
+    db[senderIndex].recentTransactions.unshift({ id: txnId, type: 'Debit', method: 'P2P Wire', partyName: db[receiverIndex].fullName, accountNumber: db[receiverIndex].accountNumber, amount: -transferAmount, merchant: `Transfer to ${db[receiverIndex].fullName}`, date: dStr, time: tStr });
+
+    db[receiverIndex].balance += transferAmount;
+    db[receiverIndex].recentTransactions.unshift({ id: txnId, type: 'Credit', method: 'P2P Wire', partyName: db[senderIndex].fullName, accountNumber: db[senderIndex].accountNumber, amount: transferAmount, merchant: `Received from ${db[senderIndex].fullName}`, date: dStr, time: tStr });
+
+    saveDatabase(db);
+    res.json({ success: true, message: "Wire transfer processed successfully." });
+});
+
+// Check Deposit Backend Node Code Integration
+app.post('/api/banking/deposit-check', requireAuth, (req, res) => {
+    const { checkToken, amount } = req.body;
+    const depositAmount = parseFloat(amount);
+    const db = getDatabase();
+    const userIndex = db.findIndex(u => u.id === req.session.userId);
+
+    if (!checkToken || isNaN(depositAmount) || depositAmount <= 0) {
+        return res.status(400).json({ success: false, message: "Transaction Denied: Missing validation data parameters." });
+    }
+
+    const matchedCheck = activeChecksCircuit[checkToken.trim()];
+    if (!matchedCheck || matchedCheck.status !== "ACTIVE" || matchedCheck.amount !== depositAmount) {
+        return res.status(400).json({ success: false, message: "Invalid, expired, or unmatched check capture token configuration." });
+    }
+
+    matchedCheck.status = "REDEEMED";
+    db[userIndex].balance += depositAmount;
+
+    db[userIndex].recentTransactions.unshift({
+        id: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
+        type: 'Credit',
+        method: 'Remote Capture Check',
+        partyName: 'e-Check Clearance Node',
+        accountNumber: checkToken.trim(),
+        amount: depositAmount,
+        merchant: `Deposited Check #${checkToken.trim()}`,
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+    });
+
+    saveDatabase(db);
+    res.json({ success: true, message: `Check Capture Approved! Added $${depositAmount.toFixed(2)} to wallet liquidity.` });
+});
+
+// Investments Management Routing Module
 app.post('/api/banking/invest/buy', requireAuth, (req, res) => {
     const { assetId, category, amount } = req.body;
     const buyAmount = parseFloat(amount);
     const db = getDatabase();
     const userIndex = db.findIndex(u => u.id === req.session.userId);
 
-    // Update #1 Guard validation Check
     if (!assetId || !category || isNaN(buyAmount) || buyAmount <= 0) {
-        return res.status(400).json({ success: false, message: "Transaction Denied: You must input an asset amount before allocation." });
+        return res.status(400).json({ success: false, message: "Transaction Denied: Complete all asset configuration values." });
     }
 
     if (db[userIndex].balance < buyAmount) {
-        return res.status(400).json({ success: false, message: "Insufficient current cash core balance." });
+        return res.status(400).json({ success: false, message: "Insufficient liquidity wallet balance." });
     }
 
     const assetGroup = MARKET_BOARD[category];
-    if (!assetGroup) return res.status(400).json({ success: false, message: "Target sector registry mapping error." });
+    if (!assetGroup) return res.status(400).json({ success: false, message: "Invalid asset category classification." });
     
     const liveAsset = assetGroup.find(a => a.id === assetId);
-    if (!liveAsset) return res.status(404).json({ success: false, message: "Asset signature missing from engine ticker." });
+    if (!liveAsset) return res.status(404).json({ success: false, message: "Asset code lookup missing from server engine boards." });
 
     const sharesToAcquire = buyAmount / liveAsset.currentPrice;
-
     db[userIndex].balance -= buyAmount;
 
-    // Check if user already owns shares of this asset
+    if (!db[userIndex].investments) db[userIndex].investments = [];
     const existingAssetIndex = db[userIndex].investments.findIndex(i => i.assetId === assetId);
 
     if (existingAssetIndex > -1) {
@@ -232,7 +299,7 @@ app.post('/api/banking/invest/buy', requireAuth, (req, res) => {
             assetId,
             category,
             sharesOwned: newSharesCount,
-            purchasePrice: newTotalCost / newSharesCount, // Weighted average cost tracking
+            purchasePrice: newTotalCost / newSharesCount,
             totalCost: newTotalCost
         };
     } else {
@@ -248,31 +315,30 @@ app.post('/api/banking/invest/buy', requireAuth, (req, res) => {
     db[userIndex].recentTransactions.unshift({
         id: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
         type: 'Debit',
-        method: 'Asset Acquisition',
+        method: 'Asset Purchase',
         partyName: `${liveAsset.name} (${assetId})`,
-        accountNumber: 'MARKET-SECURE',
+        accountNumber: 'MARKET-BUY',
         amount: -buyAmount,
-        merchant: `Allocated capital to ${assetId}`,
+        merchant: `Purchased asset shares of ${assetId}`,
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
     });
 
     saveDatabase(db);
-    res.json({ success: true, message: `Capital Allocation Executed! Acquired ${sharesToAcquire.toFixed(4)} shares of ${assetId}.` });
+    res.json({ success: true, message: `Successfully allocated capital! Purchased ${sharesToAcquire.toFixed(4)} shares of ${assetId}.` });
 });
 
-// Update 3: Liquidation / Withdrawal Loop Route
 app.post('/api/banking/invest/withdraw', requireAuth, (req, res) => {
     const { assetId } = req.body;
     const db = getDatabase();
     const userIndex = db.findIndex(u => u.id === req.session.userId);
 
+    if (!db[userIndex].investments) return res.status(404).json({ success: false, message: "Portfolio track empty." });
     const matchIdx = db[userIndex].investments.findIndex(i => i.assetId === assetId);
-    if (matchIdx === -1) return res.status(404).json({ success: false, message: "Asset portfolio slice index not tracked." });
+    if (matchIdx === -1) return res.status(404).json({ success: false, message: "Asset target code not owned." });
 
     const investmentRecord = db[userIndex].investments[matchIdx];
 
-    // Evaluate live market asset valuation block
     let currentLivePrice = investmentRecord.purchasePrice;
     for (const cat of ['stocks', 'cryptos', 'bonds', 'mutual_funds']) {
         const match = MARKET_BOARD[cat].find(a => a.id === assetId);
@@ -281,41 +347,38 @@ app.post('/api/banking/invest/withdraw', requireAuth, (req, res) => {
 
     const currentLiquidationWorth = investmentRecord.sharesOwned * currentLivePrice;
 
-    // Remove from user sub-ledger arrays entirely
     db[userIndex].investments.splice(matchIdx, 1);
-    // Move into cash balance account
     db[userIndex].balance += currentLiquidationWorth;
 
     db[userIndex].recentTransactions.unshift({
         id: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
         type: 'Credit',
-        method: 'Asset Liquidation',
-        partyName: `Portfolio Sale: ${assetId}`,
+        method: 'Portfolio Cash-Out',
+        partyName: `Liquidated: ${assetId}`,
         accountNumber: 'CASH-SETTLE',
         amount: currentLiquidationWorth,
-        merchant: `Liquidated position: ${assetId} into core vault`,
+        merchant: `Liquidated entire ${assetId} position`,
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
     });
 
     saveDatabase(db);
-    res.json({ success: true, message: `Position closed successfully! Recaptured $${currentLiquidationWorth.toFixed(2)} cash asset balance.` });
+    res.json({ success: true, message: `Position closed! Returned $${currentLiquidationWorth.toFixed(2)} cash directly to balance.` });
 });
 
-// Update 1: Utility Bill Clearance Route with Form Guards
+// Utility Settlement Node
 app.post('/api/banking/bill', requireAuth, (req, res) => {
     const { billerName, amount } = req.body;
     const billAmount = parseFloat(amount);
     const db = getDatabase();
     const userIndex = db.findIndex(u => u.id === req.session.userId);
 
-    // Update #1 Verification validation Check
     if (!billerName || isNaN(billAmount) || billAmount <= 0) {
-        return res.status(400).json({ success: false, message: "Transaction Denied: Both biller classification and settlement amount parameters are mandatory." });
+        return res.status(400).json({ success: false, message: "Transaction Denied: Provide biller context data values." });
     }
 
     if (db[userIndex].balance < billAmount) {
-        return res.status(400).json({ success: false, message: "Insufficient operational ledger balance." });
+        return res.status(400).json({ success: false, message: "Insufficient ledger funds for utility processing." });
     }
 
     db[userIndex].balance -= billAmount;
@@ -326,55 +389,17 @@ app.post('/api/banking/bill', requireAuth, (req, res) => {
         partyName: billerName.trim(),
         accountNumber: 'UTILITY-CLEAR',
         amount: -billAmount,
-        merchant: `Settled payment item: ${billerName}`,
+        merchant: `Paid utility bill to ${billerName}`,
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
     });
 
     saveDatabase(db);
-    res.json({ success: true, message: "Utility payment authorized and recorded successfully." });
-});
-
-// P2P Account Lookup
-app.get('/api/banking/lookup-account', requireAuth, (req, res) => {
-    const { accountNumber } = req.query;
-    if (!accountNumber) return res.status(400).json({ success: false, message: "Query parameter missing." });
-    const db = getDatabase();
-    const targetUser = db.find(u => String(u.accountNumber).trim() === String(accountNumber).trim());
-    if (!targetUser) return res.status(404).json({ success: false, message: "Target account registry unmatched." });
-    if (targetUser.id === req.session.userId) return res.status(400).json({ success: false, message: "Self loops prohibited." });
-    res.json({ success: true, fullName: targetUser.fullName });
-});
-
-// Peer-To-Peer Wire
-app.post('/api/banking/transfer', requireAuth, (req, res) => {
-    const { targetAccountNumber, amount } = req.body;
-    const transferAmount = parseFloat(amount);
-    const db = getDatabase();
-
-    const senderIndex = db.findIndex(u => u.id === req.session.userId);
-    const receiverIndex = db.findIndex(u => String(u.accountNumber).trim() === String(targetAccountNumber).trim());
-
-    if (receiverIndex === -1 || senderIndex === receiverIndex) return res.status(400).json({ success: false, message: "Account wire sequence collision." });
-    if (isNaN(transferAmount) || transferAmount <= 0) return res.status(400).json({ success: false, message: "Invalid decimal amount parsing format." });
-    if (db[senderIndex].balance < transferAmount) return res.status(400).json({ success: false, message: "Insufficient wire balance structure." });
-
-    const txnId = `TXN-${Math.floor(100000 + Math.random() * 900000)}`;
-    const dStr = new Date().toISOString().split('T')[0];
-    const tStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-
-    db[senderIndex].balance -= transferAmount;
-    db[senderIndex].recentTransactions.unshift({ id: txnId, type: 'Debit', method: 'P2P Wire', partyName: db[receiverIndex].fullName, accountNumber: db[receiverIndex].accountNumber, amount: -transferAmount, merchant: `Transfer to ${db[receiverIndex].fullName}`, date: dStr, time: tStr });
-
-    db[receiverIndex].balance += transferAmount;
-    db[receiverIndex].recentTransactions.unshift({ id: txnId, type: 'Credit', method: 'P2P Wire', partyName: db[senderIndex].fullName, accountNumber: db[senderIndex].accountNumber, amount: transferAmount, merchant: `Received from ${db[senderIndex].fullName}`, date: dStr, time: tStr });
-
-    saveDatabase(db);
-    res.json({ success: true, message: "Peer wire completed safely." });
+    res.json({ success: true, message: "Utility settlement authorized and finalized safely." });
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
 const renderPort = process.env.PORT || 3000;
 app.listen(renderPort, '0.0.0.0', () => {
-    console.log(`⚡ APEX CORE ENGINE LIVE ON PORT: ${renderPort}`);
+    console.log(`⚡ CORE ENGINE DEPLOYMENT COMPLETED ON PORT: ${renderPort}`);
 });
