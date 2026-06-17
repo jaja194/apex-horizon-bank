@@ -28,6 +28,21 @@
         </div>
     </div>
 
+    <div id="bill-confirm-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 space-y-4 shadow-2xl border">
+            <h3 class="text-sm font-black uppercase tracking-wider text-emerald-600">⚠️ Confirm Utility Settlement</h3>
+            <div class="bg-slate-50 p-4 rounded-xl space-y-2 border">
+                <p id="confirm-bill-name" class="text-base font-black text-slate-800">Biller Name</p>
+                <p class="text-xs font-mono text-gray-400">Target: <span class="text-slate-700 font-bold">UTILITY-CLEAR NODE</span></p>
+                <p id="confirm-bill-amount" class="text-xl font-black text-red-500">$0.00</p>
+            </div>
+            <div class="flex space-x-3 justify-end">
+                <button id="cancel-bill-btn" class="text-xs font-bold uppercase tracking-wider px-4 py-2 text-gray-500">Cancel</button>
+                <button id="execute-bill-btn" class="bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl">Settle Balance</button>
+            </div>
+        </div>
+    </div>
+
     <div id="investment-actions-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-40">
         <div class="bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden shadow-2xl border">
             <div class="bg-slate-800 p-4 text-white flex justify-between items-center">
@@ -216,13 +231,13 @@
                         </form>
                     </div>
 
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border">
+                    <div id="op-deposit-form" class="bg-white p-5 rounded-2xl shadow-sm border">
                         <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-1">Check Remote Capture Gateway</h3>
                         <p class="text-[10px] text-gray-400 uppercase mb-3">Deposit check clearing certificate arrays</p>
-                        <form id="op-check-deposit-form" onsubmit="return false;" class="space-y-3">
-                            <input type="text" id="chk-token-ref" placeholder="Check Routing Reference Token Code (e.g. CHKP-9988)" class="w-full text-xs border rounded-xl p-3 font-mono outline-none">
-                            <input type="number" id="chk-amount" step="0.01" placeholder="Validation Check Face Amount ($)" class="w-full text-xs border rounded-xl p-3 outline-none">
-                            <button type="submit" id="submit-check-btn" disabled class="w-full bg-slate-300 text-gray-500 font-bold text-xs p-3.5 rounded-xl cursor-not-allowed uppercase tracking-wider transition">Process Mobile Check Ledger</button>
+                        <form id="check-deposit-form" onsubmit="return false;" class="space-y-3">
+                            <input type="text" id="check-token-ref" placeholder="Check Routing Reference Token Code (e.g. CHKP-9988)" class="w-full text-xs border rounded-xl p-3 font-mono outline-none">
+                            <input type="number" id="check-deposit-amount" step="0.01" placeholder="Validation Check Face Amount ($)" class="w-full text-xs border rounded-xl p-3 outline-none">
+                            <button type="submit" id="execute-check-btn" disabled class="w-full bg-slate-300 text-gray-500 font-bold text-xs p-3.5 rounded-xl cursor-not-allowed uppercase tracking-wider transition">Process Mobile Check Ledger</button>
                         </form>
                     </div>
 
@@ -267,9 +282,10 @@
     <script>
         let accessModeLogin = true;
         let pendingTransferPayload = null;
+        let pendingBillPayload = null;
         let GLOBAL_MARKET_STATE = {};
 
-        // UPDATE 4: Standard Validator Utility for Field Tracking Actions
+        // Reactive Input Field Observer Validator
         function monitorInputValidation(inputIdsArray, submitButtonId) {
             const btn = document.getElementById(submitButtonId);
             const inputs = inputIdsArray.map(id => document.getElementById(id));
@@ -277,6 +293,7 @@
             function evaluateState() {
                 let allValid = true;
                 inputs.forEach(input => {
+                    if (!input) return;
                     const val = input.value.trim();
                     if (!val || val === '' || (input.type === 'number' && parseFloat(val) <= 0)) {
                         allValid = false;
@@ -293,17 +310,21 @@
                     btn.className = "w-full bg-slate-300 text-gray-500 font-bold text-xs p-3.5 rounded-xl cursor-not-allowed uppercase tracking-wider transition";
                 }
             }
-            inputs.forEach(input => input.addEventListener('input', evaluateState));
-            inputs.forEach(input => input.addEventListener('change', evaluateState));
+            inputs.forEach(input => {
+                if(input) {
+                    input.addEventListener('input', evaluateState);
+                    input.addEventListener('change', evaluateState);
+                }
+            });
         }
 
-        // Initialize verification observers
+        // Initialize Form Key Validators
         monitorInputValidation(['tx-target-acc', 'tx-amount'], 'submit-p2p-btn');
-        monitorInputValidation(['chk-token-ref', 'chk-amount'], 'submit-check-btn');
+        monitorInputValidation(['check-token-ref', 'check-deposit-amount'], 'execute-check-btn');
         monitorInputValidation(['bill-name', 'bill-amount'], 'submit-bill-btn');
         monitorInputValidation(['inv-amount-v2'], 'submit-asset-buy-btn');
 
-        // Toggle authentication panel components
+        // Toggle Auth
         document.getElementById('toggle-auth').addEventListener('click', () => {
             accessModeLogin = !accessModeLogin;
             document.getElementById('register-fields').classList.toggle('hidden', accessModeLogin);
@@ -361,7 +382,6 @@
             } catch(e) { console.error("Market tick loss.", e); }
         }
 
-        // UPDATE 1: Clean dynamic dropdown rendering engine logic
         function populateAssetDropdownOptions() {
             const sector = document.getElementById('inv-sector-select').value;
             const targetDropdown = document.getElementById('inv-asset-target');
@@ -374,7 +394,6 @@
                 targetDropdown.innerHTML += `<option value="${asset.id}">${asset.id} - ${asset.name} ($${asset.currentPrice.toFixed(2)})</option>`;
             });
 
-            // Prevent reset jumping by locking position matches back
             if (previousSelection && Array.from(targetDropdown.options).some(o => o.value === previousSelection)) {
                 targetDropdown.value = previousSelection;
             }
@@ -391,7 +410,7 @@
                 document.getElementById('welcome-header').innerText = u.fullName;
                 document.getElementById('display-acc-num').innerText = u.accountNumber;
                 document.getElementById('display-acc-class').innerText = `🔒 ${u.accountType}`;
-                document.getElementById('display-balance').innerText = `$${u.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                document.getElementById('display-balance').innerText = `$${(u.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
                 
                 const worth = u.investmentPortfolioWorth || 0;
                 document.getElementById('display-investments').innerText = `$${worth.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
@@ -399,10 +418,10 @@
                 const pnlCashEl = document.getElementById('display-portfolio-pnl-cash');
                 const pnlPctBadge = document.getElementById('display-portfolio-pnl-badge');
                 
-                pnlCashEl.innerText = `${u.portfolioPnlValue >= 0 ? '+' : ''}$${u.portfolioPnlValue.toFixed(2)}`;
-                pnlPctBadge.innerText = `${u.portfolioPnlValue >= 0 ? '▲' : '▼'} ${u.portfolioPnlPercent.toFixed(2)}%`;
+                pnlCashEl.innerText = `${(u.portfolioPnlValue || 0) >= 0 ? '+' : ''}${(u.portfolioPnlValue || 0).toFixed(2)}`;
+                pnlPctBadge.innerText = `${(u.portfolioPnlValue || 0) >= 0 ? '▲' : '▼'} ${(u.portfolioPnlPercent || 0).toFixed(2)}%`;
 
-                if (u.portfolioPnlValue >= 0) {
+                if ((u.portfolioPnlValue || 0) >= 0) {
                     pnlCashEl.className = "font-bold font-mono text-emerald-500";
                     pnlPctBadge.className = "text-[11px] font-black font-mono px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200";
                 } else {
@@ -414,7 +433,6 @@
                 breakdownTbody.innerHTML = '';
                 
                 if (u.investments && u.investments.length > 0) {
-                    document.getElementById('empty-portfolio-msg').add;
                     document.getElementById('empty-portfolio-msg').classList.add('hidden');
                     u.investments.forEach(inv => {
                         const isProfit = inv.pnlValue >= 0;
@@ -422,10 +440,10 @@
                         breakdownTbody.innerHTML += `
                             <tr class="align-middle text-slate-700 border-b border-gray-50">
                                 <td class="py-3 font-bold">${inv.assetId}<span class="block text-[10px] text-gray-400 font-normal">${inv.assetName}</span></td>
-                                <td class="py-3 font-mono">${inv.sharesOwned.toFixed(4)}</td>
-                                <td class="py-3 font-mono">$${inv.purchasePrice.toFixed(2)}<span class="block text-[9px] text-gray-400 font-normal">Total: $${inv.totalCost.toFixed(2)}</span></td>
-                                <td class="py-3 font-mono text-slate-900 font-semibold">$${inv.currentPrice.toFixed(2)}<span class="block text-[9px] text-gray-400 font-normal">Worth: $${inv.currentWorth.toFixed(2)}</span></td>
-                                <td class="py-3 font-mono text-center font-bold ${color}">${isProfit ? '+' : ''}${inv.pnlPercent.toFixed(2)}%<span class="block text-[9px] font-normal">${isProfit ? '+' : ''}$${inv.pnlValue.toFixed(2)}</span></td>
+                                <td class="py-3 font-mono">${(inv.sharesOwned || 0).toFixed(4)}</td>
+                                <td class="py-3 font-mono">$${(inv.purchasePrice || 0).toFixed(2)}<span class="block text-[9px] text-gray-400 font-normal">Total: $${(inv.totalCost || 0).toFixed(2)}</span></td>
+                                <td class="py-3 font-mono text-slate-900 font-semibold">$${(inv.currentPrice || 0).toFixed(2)}<span class="block text-[9px] text-gray-400 font-normal">Worth: $${(inv.currentWorth || 0).toFixed(2)}</span></td>
+                                <td class="py-3 font-mono text-center font-bold ${color}">${isProfit ? '+' : ''}${(inv.pnlPercent || 0).toFixed(2)}%<span class="block text-[9px] font-normal">${isProfit ? '+' : ''}$${(inv.pnlValue || 0).toFixed(2)}</span></td>
                                 <td class="py-3 text-right"><button onclick="executeAssetLiquidation('${inv.assetId}')" class="bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-black uppercase px-2 py-1 rounded-lg border border-red-200 transition">Withdraw</button></td>
                             </tr>
                         `;
@@ -436,7 +454,7 @@
 
                 const tbody = document.getElementById('ledger-rows');
                 tbody.innerHTML = '';
-                u.recentTransactions.forEach(tx => {
+                (u.recentTransactions || []).forEach(tx => {
                     const isDebit = tx.amount < 0;
                     const colorClass = isDebit ? 'text-red-500' : 'text-emerald-500';
                     tbody.innerHTML += `
@@ -455,8 +473,9 @@
 
         function bindFormToEngine(formId, apiEndpoint, fieldsExtractor, submitBtnId) {
             const form = document.getElementById(formId);
+            if (!form) return;
             form.addEventListener('submit', async (e) => {
-                e.preventDefault(); // Prevents page reload crashes entirely!
+                e.preventDefault();
                 const payload = fieldsExtractor();
                 
                 const loader = document.getElementById('transaction-loader');
@@ -475,21 +494,30 @@
                             }
                             updateDashboardState(); 
                         }
-                    }, 1500);
+                    }, 1200);
                 } catch(err) { loader.classList.add('hidden'); }
             });
         }
 
-        // Form Endpoint Route Declarations
-        bindFormToEngine('op-bill-form', '/api/banking/bill', () => ({ billerName: document.getElementById('bill-name').value, amount: document.getElementById('bill-amount').value }), 'submit-bill-btn');
-        bindFormToEngine('op-check-deposit-form', '/api/banking/deposit-check', () => ({ checkToken: document.getElementById('chk-token-ref').value, amount: document.getElementById('chk-amount').value }), 'submit-check-btn');
+        // ORIGINAL CHECK DEPOSIT ENDPOINT ENGINE BINDING
+        bindFormToEngine(
+            'check-deposit-form', 
+            '/api/banking/deposit', 
+            () => ({ 
+                checkNumber: document.getElementById('check-token-ref').value, 
+                amount: document.getElementById('check-deposit-amount').value 
+            }), 
+            'execute-check-btn'
+        );
+
+        // INVESTMENT ALLOCATION MATRIX ROUTE BINDING
         bindFormToEngine('op-invest-form-v2', '/api/banking/invest/buy', () => ({
             category: document.getElementById('inv-sector-select').value,
             assetId: document.getElementById('inv-asset-target').value,
             amount: document.getElementById('inv-amount-v2').value
         }), 'submit-asset-buy-btn');
 
-        // UPDATE 3: Positions Liquidation Trigger
+        // POSITION LIQUIDATION WITHDRAWAL TRIGGER
         async function executeAssetLiquidation(assetId) {
             if (!confirm(`Are you sure you want to close and liquidate your entire ${assetId} position?`)) return;
             document.getElementById('portfolio-breakdown-modal').classList.add('hidden');
@@ -502,18 +530,52 @@
                     document.getElementById('transaction-loader').classList.add('hidden');
                     alert(data.message);
                     updateDashboardState();
-                }, 1500);
+                }, 1200);
             } catch(e) { document.getElementById('transaction-loader').classList.add('hidden'); }
         }
 
-        // UPDATE 2: Hidden Menu Hub Visibility Handlers
+        // UTILITY SETTLEMENT INTERCEPTOR (MATCHES THE WIRE TRANSFER CONFIRMATION WORKFLOW)
+        document.getElementById('op-bill-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('bill-name').value.trim();
+            const amount = document.getElementById('bill-amount').value;
+            if (!name || !amount) return;
+
+            pendingBillPayload = { billerName: name, amount: amount };
+            document.getElementById('confirm-bill-name').innerText = name;
+            document.getElementById('confirm-bill-amount').innerText = `$${parseFloat(amount).toFixed(2)}`;
+            document.getElementById('bill-confirm-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('execute-bill-btn').addEventListener('click', async () => {
+            document.getElementById('bill-confirm-modal').classList.add('hidden');
+            document.getElementById('transaction-loader').classList.remove('hidden');
+            try {
+                const res = await fetch('/api/banking/bill', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pendingBillPayload) });
+                const data = await res.json();
+                setTimeout(() => {
+                    document.getElementById('transaction-loader').classList.add('hidden');
+                    alert(data.message || data.error);
+                    if (res.ok) { 
+                        document.getElementById('op-bill-form').reset(); 
+                        updateDashboardState(); 
+                    }
+                }, 1200);
+            } catch(e) { document.getElementById('transaction-loader').classList.add('hidden'); }
+        });
+
+        document.getElementById('cancel-bill-btn').addEventListener('click', () => {
+            document.getElementById('bill-confirm-modal').classList.add('hidden');
+            pendingBillPayload = null;
+        });
+
+        // Investment Hub Modal Triggers
         document.getElementById('open-investment-hub-btn').addEventListener('click', () => {
             document.getElementById('investment-actions-modal').classList.remove('hidden');
         });
         document.getElementById('close-actions-modal-btn').addEventListener('click', () => {
             document.getElementById('investment-actions-modal').classList.add('hidden');
         });
-
         document.getElementById('trigger-buy-view-btn').addEventListener('click', () => {
             document.getElementById('investment-actions-modal').classList.add('hidden');
             document.getElementById('allocation-buy-modal').classList.remove('hidden');
@@ -522,7 +584,6 @@
             document.getElementById('investment-actions-modal').classList.add('hidden');
             document.getElementById('portfolio-breakdown-modal').classList.remove('hidden');
         });
-
         document.getElementById('open-portfolio-modal-trigger').addEventListener('click', () => {
             document.getElementById('portfolio-breakdown-modal').classList.remove('hidden');
         });
@@ -530,7 +591,7 @@
             document.getElementById('portfolio-breakdown-modal').classList.add('hidden');
         });
 
-        // P2P Account Wire Lookup Mechanics
+        // P2P Account Wire Mechanics
         document.getElementById('op-transfer-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const accountNumber = document.getElementById('tx-target-acc').value.trim();
@@ -560,7 +621,7 @@
                     document.getElementById('transaction-loader').classList.add('hidden');
                     alert(data.message);
                     if (res.ok) { document.getElementById('op-transfer-form').reset(); updateDashboardState(); }
-                }, 1500);
+                }, 1200);
             } catch(e) { document.getElementById('transaction-loader').classList.add('hidden'); }
         });
 
@@ -569,6 +630,7 @@
             pendingTransferPayload = null;
         });
 
+        // Detail View row listeners
         document.addEventListener('click', (e) => {
             const row = e.target.closest('.transaction-row');
             if (row) {
@@ -588,7 +650,6 @@
             await fetch('/api/auth/logout', { method: 'POST' }); window.location.reload();
         });
 
-        // Market tick synchronization heartbeat loop (runs every 10 seconds)
         setInterval(async () => {
             if (!document.getElementById('bank-dashboard').classList.contains('hidden')) {
                 await pullMarketTickers();

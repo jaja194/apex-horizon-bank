@@ -14,10 +14,10 @@ if (!fs.existsSync(DB_FILE)) {
 // Global Stateful Simulated Real-World Market Board
 const MARKET_BOARD = {
     stocks: [
-        { id: 'AAPL', name: 'Apple Inc.', basePrice: 175.00, currentPrice: 175.00 },
-        { id: 'TSLA', name: 'Tesla Inc.', basePrice: 220.00, currentPrice: 220.00 },
+        { id: 'AAPL', name: 'Apple Inc.', basePrice: 190.00, currentPrice: 190.00 },
+        { id: 'TSLA', name: 'Tesla Inc.', basePrice: 195.00, currentPrice: 195.00 },
         { id: 'NVDA', name: 'NVIDIA Corp.', basePrice: 450.00, currentPrice: 450.00 },
-        { id: 'AMZN', name: 'Amazon.com Inc.', basePrice: 145.00, currentPrice: 145.00 },
+        { id: 'AMZN', name: 'Amazon.com Inc.', basePrice: 140.00, currentPrice: 140.00 },
         { id: 'MSFT', name: 'Microsoft Corp.', basePrice: 380.00, currentPrice: 380.00 }
     ],
     cryptos: [
@@ -43,7 +43,7 @@ const MARKET_BOARD = {
     ]
 };
 
-// Simulated check circuit tracking dictionary
+// Original Active Verification Check Circuit Dictionary
 let activeChecksCircuit = {
     "CHKP-9988": { issuerId: "SYSTEM", amount: 5000.00, status: "ACTIVE" },
     "CHKP-1122": { issuerId: "SYSTEM", amount: 2500.00, status: "ACTIVE" }
@@ -51,11 +51,13 @@ let activeChecksCircuit = {
 
 function simulateMarketFluctuations() {
     ['stocks', 'cryptos', 'bonds', 'mutual_funds'].forEach(category => {
-        MARKET_BOARD[category].forEach(asset => {
-            const volatility = category === 'cryptos' ? 0.03 : category === 'bonds' ? 0.004 : 0.012;
-            const changePercent = (Math.random() - 0.48) * 2 * volatility; // Slight upward bias
-            asset.currentPrice = Math.max(0.01, asset.currentPrice * (1 + changePercent));
-        });
+        if (MARKET_BOARD[category]) {
+            MARKET_BOARD[category].forEach(asset => {
+                const volatility = category === 'cryptos' ? 0.03 : category === 'bonds' ? 0.004 : 0.012;
+                const changePercent = (Math.random() - 0.48) * 2 * volatility;
+                asset.currentPrice = Math.max(0.01, asset.currentPrice * (1 + changePercent));
+            });
+        }
     });
 }
 
@@ -93,7 +95,7 @@ app.post('/api/auth/signup', async (req, res) => {
         return res.status(400).json({ success: false, message: "Missing profile fields." });
     }
 
-    if (db.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+    if (db.some(u => u.email && u.email.toLowerCase() === email.toLowerCase())) {
         return res.status(400).json({ success: false, message: "Email already registered." });
     }
 
@@ -124,7 +126,7 @@ app.post('/api/auth/signup', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
     const db = getDatabase();
-    const user = db.find(u => u.email.toLowerCase() === email.toLowerCase());
+    const user = db.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
 
     if (!user) return res.status(404).json({ success: false, message: "Account not found." });
 
@@ -159,14 +161,16 @@ app.get('/api/account', requireAuth, (req, res) => {
     const populatedInvestments = (user.investments || []).map(inv => {
         let marketAsset = null;
         for (const cat of ['stocks', 'cryptos', 'bonds', 'mutual_funds']) {
-            const found = MARKET_BOARD[cat].find(a => a.id === inv.assetId);
-            if (found) { marketAsset = found; break; }
+            if (MARKET_BOARD[cat]) {
+                const found = MARKET_BOARD[cat].find(a => a.id === inv.assetId);
+                if (found) { marketAsset = found; break; }
+            }
         }
 
-        const livePrice = marketAsset ? marketAsset.currentPrice : inv.purchasePrice;
-        const currentWorth = inv.sharesOwned * livePrice;
+        const livePrice = marketAsset ? marketAsset.currentPrice : (inv.purchasePrice || 0);
+        const currentWorth = (inv.sharesOwned || 0) * livePrice;
 
-        aggregatedCostBasis += inv.totalCost;
+        aggregatedCostBasis += (inv.totalCost || 0);
         aggregatedCurrentWorth += currentWorth;
 
         return {
@@ -174,7 +178,7 @@ app.get('/api/account', requireAuth, (req, res) => {
             assetName: marketAsset ? marketAsset.name : inv.assetId,
             currentPrice: livePrice,
             currentWorth: currentWorth,
-            pnlValue: currentWorth - inv.totalCost,
+            pnlValue: currentWorth - (inv.totalCost || 0),
             pnlPercent: inv.totalCost > 0 ? ((currentWorth - inv.totalCost) / inv.totalCost) * 100 : 0
         };
     });
@@ -184,6 +188,7 @@ app.get('/api/account', requireAuth, (req, res) => {
 
     const { password, ...safeData } = user;
     safeData.investments = populatedInvestments;
+    safeData.recentTransactions = user.recentTransactions || [];
     safeData.investmentPortfolioWorth = aggregatedCurrentWorth;
     safeData.portfolioPnlValue = totalPortfolioPnlValue;
     safeData.portfolioPnlPercent = totalPortfolioPnlPercent;
@@ -191,7 +196,7 @@ app.get('/api/account', requireAuth, (req, res) => {
     res.json(safeData);
 });
 
-// P2P Lookup & Transfer Engine
+// P2P Lookup & Wire Transfer
 app.get('/api/banking/lookup-account', requireAuth, (req, res) => {
     const { accountNumber } = req.query;
     if (!accountNumber) return res.status(400).json({ success: false, message: "Missing parameter." });
@@ -219,51 +224,64 @@ app.post('/api/banking/transfer', requireAuth, (req, res) => {
     const tStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 
     db[senderIndex].balance -= transferAmount;
+    if (!db[senderIndex].recentTransactions) db[senderIndex].recentTransactions = [];
     db[senderIndex].recentTransactions.unshift({ id: txnId, type: 'Debit', method: 'P2P Wire', partyName: db[receiverIndex].fullName, accountNumber: db[receiverIndex].accountNumber, amount: -transferAmount, merchant: `Transfer to ${db[receiverIndex].fullName}`, date: dStr, time: tStr });
 
     db[receiverIndex].balance += transferAmount;
+    if (!db[receiverIndex].recentTransactions) db[receiverIndex].recentTransactions = [];
     db[receiverIndex].recentTransactions.unshift({ id: txnId, type: 'Credit', method: 'P2P Wire', partyName: db[senderIndex].fullName, accountNumber: db[senderIndex].accountNumber, amount: transferAmount, merchant: `Received from ${db[senderIndex].fullName}`, date: dStr, time: tStr });
 
     saveDatabase(db);
     res.json({ success: true, message: "Wire transfer processed successfully." });
 });
 
-// Check Deposit Backend Node Code Integration
-app.post('/api/banking/deposit-check', requireAuth, (req, res) => {
-    const { checkToken, amount } = req.body;
+// ORIGINAL CHECK DEPOSIT VERIFICATION ENGINE
+app.post('/api/banking/deposit', requireAuth, (req, res) => {
+    const { checkNumber, amount } = req.body;
     const depositAmount = parseFloat(amount);
     const db = getDatabase();
     const userIndex = db.findIndex(u => u.id === req.session.userId);
+    const currentUser = db[userIndex];
 
-    if (!checkToken || isNaN(depositAmount) || depositAmount <= 0) {
+    if (!checkNumber || isNaN(depositAmount) || depositAmount <= 0) {
         return res.status(400).json({ success: false, message: "Transaction Denied: Missing validation data parameters." });
     }
 
-    const matchedCheck = activeChecksCircuit[checkToken.trim()];
-    if (!matchedCheck || matchedCheck.status !== "ACTIVE" || matchedCheck.amount !== depositAmount) {
+    const matchedCheck = activeChecksCircuit[checkNumber.trim()];
+    
+    if (!matchedCheck || matchedCheck.status !== "ACTIVE") {
         return res.status(400).json({ success: false, message: "Invalid, expired, or unmatched check capture token configuration." });
     }
 
-    matchedCheck.status = "REDEEMED";
-    db[userIndex].balance += depositAmount;
+    if (matchedCheck.amount !== depositAmount) {
+        return res.status(400).json({ success: false, message: "Transaction Denied: Deposit amount mismatch with check face value." });
+    }
 
-    db[userIndex].recentTransactions.unshift({
+    if (matchedCheck.issuerId === currentUser.id) {
+        return res.status(400).json({ success: false, message: "Transaction Denied: Cannot deposit a self-issued clearing token." });
+    }
+
+    matchedCheck.status = "REDEEMED";
+    currentUser.balance += depositAmount;
+
+    if (!currentUser.recentTransactions) currentUser.recentTransactions = [];
+    currentUser.recentTransactions.unshift({
         id: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
         type: 'Credit',
         method: 'Remote Capture Check',
         partyName: 'e-Check Clearance Node',
-        accountNumber: checkToken.trim(),
+        accountNumber: checkNumber.trim(),
         amount: depositAmount,
-        merchant: `Deposited Check #${checkToken.trim()}`,
+        merchant: `Deposited Check #${checkNumber.trim()}`,
         date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
     });
 
     saveDatabase(db);
-    res.json({ success: true, message: `Check Capture Approved! Added $${depositAmount.toFixed(2)} to wallet liquidity.` });
+    res.json({ success: true, message: `Check Remote Capture Approved! Added $${depositAmount.toFixed(2)} to wallet liquidity.` });
 });
 
-// Investments Management Routing Module
+// Investments Allocation Engine
 app.post('/api/banking/invest/buy', requireAuth, (req, res) => {
     const { assetId, category, amount } = req.body;
     const buyAmount = parseFloat(amount);
@@ -292,8 +310,8 @@ app.post('/api/banking/invest/buy', requireAuth, (req, res) => {
 
     if (existingAssetIndex > -1) {
         const oldInv = db[userIndex].investments[existingAssetIndex];
-        const newTotalCost = oldInv.totalCost + buyAmount;
-        const newSharesCount = oldInv.sharesOwned + sharesToAcquire;
+        const newTotalCost = (oldInv.totalCost || 0) + buyAmount;
+        const newSharesCount = (oldInv.sharesOwned || 0) + sharesToAcquire;
         
         db[userIndex].investments[existingAssetIndex] = {
             assetId,
@@ -312,6 +330,7 @@ app.post('/api/banking/invest/buy', requireAuth, (req, res) => {
         });
     }
 
+    if (!db[userIndex].recentTransactions) db[userIndex].recentTransactions = [];
     db[userIndex].recentTransactions.unshift({
         id: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
         type: 'Debit',
@@ -341,15 +360,18 @@ app.post('/api/banking/invest/withdraw', requireAuth, (req, res) => {
 
     let currentLivePrice = investmentRecord.purchasePrice;
     for (const cat of ['stocks', 'cryptos', 'bonds', 'mutual_funds']) {
-        const match = MARKET_BOARD[cat].find(a => a.id === assetId);
-        if (match) { currentLivePrice = match.currentPrice; break; }
+        if (MARKET_BOARD[cat]) {
+            const match = MARKET_BOARD[cat].find(a => a.id === assetId);
+            if (match) { currentLivePrice = match.currentPrice; break; }
+        }
     }
 
-    const currentLiquidationWorth = investmentRecord.sharesOwned * currentLivePrice;
+    const currentLiquidationWorth = (investmentRecord.sharesOwned || 0) * currentLivePrice;
 
     db[userIndex].investments.splice(matchIdx, 1);
     db[userIndex].balance += currentLiquidationWorth;
 
+    if (!db[userIndex].recentTransactions) db[userIndex].recentTransactions = [];
     db[userIndex].recentTransactions.unshift({
         id: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
         type: 'Credit',
@@ -382,6 +404,7 @@ app.post('/api/banking/bill', requireAuth, (req, res) => {
     }
 
     db[userIndex].balance -= billAmount;
+    if (!db[userIndex].recentTransactions) db[userIndex].recentTransactions = [];
     db[userIndex].recentTransactions.unshift({
         id: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
         type: 'Debit',
