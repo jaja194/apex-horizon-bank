@@ -156,7 +156,7 @@ app.get('/api/account', requireAuth, (req, res) => {
     let aggregatedCostBasis = 0;
     let aggregatedCurrentWorth = 0;
 
-    const populatedInvestments = user.investments.map(inv => {
+    const populatedInvestments = (user.investments || []).map(inv => {
         // Find current live price
         let marketAsset = null;
         for (const cat of ['stocks', 'cryptos', 'bonds', 'mutual_funds']) {
