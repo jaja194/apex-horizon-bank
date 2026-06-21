@@ -345,6 +345,7 @@ app.post('/api/banking/bill', requireAuth, (req, res) => {
     res.json({ success: true, message: "Utility settlement executed cleanly." });
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
 const renderPort = process.env.PORT || 3000;
 
 app.listen(renderPort, '0.0.0.0', () => {
