@@ -1,419 +1,496 @@
-{
-    "users": [
-        {
-            "id": "1781003384818",
-            "fullName": "AGU LINUS ONYEDIKACHI",
-            "email": "agulinus2@gmail.com",
-            "password": "$2b$10$G/MwX3nnhxgzHZvtSYR42.XagbIzwQF4s.nykLkoFUT7IGNF0W3AG",
-            "accountNumber": "7746557146",
-            "accountType": "Premium Checking Portfolio",
-            "balance": 6132284,
-            "investmentPortfolio": 20000,
-            "recentTransactions": [
-                {
-                    "id": "TXN-888698",
-                    "type": "Debit",
-                    "method": "Check Issued",
-                    "partyName": "Holding Escrow Node",
-                    "accountNumber": "7349517080",
-                    "amount": -444,
-                    "merchant": "Generated Check Token #7349517080",
-                    "date": "2026-06-20",
-                    "time": "21:26"
-                },
-                {
-                    "id": "TXN-639733",
-                    "type": "Debit",
-                    "method": "Check Issued",
-                    "partyName": "Holding Escrow Node",
-                    "accountNumber": "9449077164",
-                    "amount": -7000,
-                    "merchant": "Generated Check Token #9449077164",
-                    "date": "2026-06-20",
-                    "time": "21:25"
-                },
-                {
-                    "id": "TXN-135955",
-                    "type": "Debit",
-                    "method": "Check Issued",
-                    "partyName": "Holding Escrow Node",
-                    "accountNumber": "6231270836",
-                    "amount": -5000,
-                    "merchant": "Generated Check Token #6231270836",
-                    "date": "2026-06-19",
-                    "time": "19:28"
-                },
-                {
-                    "id": "TXN-972513",
-                    "type": "Credit",
-                    "method": "P2P Wire Transfer",
-                    "partyName": "Agu Chuchu",
-                    "accountNumber": "7082061596",
-                    "amount": 400,
-                    "merchant": "Received from Agu Chuchu",
-                    "date": "2026-06-14",
-                    "time": "16:40:15"
-                },
-                {
-                    "id": "TXN-669336",
-                    "type": "Debit",
-                    "method": "Check Drawn",
-                    "partyName": "Agu Chuchu",
-                    "accountNumber": "7082061596",
-                    "amount": -2000,
-                    "merchant": "Check #551693 Drawn by Agu Chuchu",
-                    "date": "2026-06-14",
-                    "time": "16:36:03"
-                },
-                {
-                    "id": "TXN-197112",
-                    "type": "Debit",
-                    "method": "P2P Wire Transfer",
-                    "partyName": "Agu Chuchu",
-                    "accountNumber": "7082061596",
-                    "amount": -500,
-                    "merchant": "Transfer to Agu Chuchu",
-                    "date": "2026-06-14",
-                    "time": "16:33:13"
-                },
-                {
-                    "id": "tx-1781282756395",
-                    "type": "Debit",
-                    "amount": -3000,
-                    "merchant": "Transfer to Acc #7082061596",
-                    "date": "2026-06-12"
-                },
-                {
-                    "id": "dep-1781266972629",
-                    "type": "Credit",
-                    "amount": 6000,
-                    "merchant": "e-Check Mobile Deposit",
-                    "date": "2026-06-12"
-                },
-                {
-                    "id": "bill-1781266671869",
-                    "type": "Debit",
-                    "amount": -7200,
-                    "merchant": "Utility Settlement: movingday group",
-                    "date": "2026-06-12"
-                },
-                {
-                    "id": "tx-1781266371122",
-                    "type": "Debit",
-                    "amount": -5000,
-                    "merchant": "Transfer to Acc #7082061596",
-                    "date": "2026-06-12"
-                },
-                {
-                    "id": "dep-1781265699155",
-                    "type": "Credit",
-                    "amount": 60000,
-                    "merchant": "e-Check Mobile Deposit",
-                    "date": "2026-06-12"
-                },
-                {
-                    "id": "tx-1781265670894",
-                    "type": "Debit",
-                    "amount": -600000,
-                    "merchant": "Transfer to Acc #7082061596",
-                    "date": "2026-06-12"
-                },
-                {
-                    "id": "inv-1781048893202",
-                    "type": "Debit",
-                    "amount": -20000,
-                    "merchant": "Allocation to Growth Index Portfolio",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "dep-1781047120572",
-                    "type": "Credit",
-                    "amount": 450789,
-                    "merchant": "e-Check Mobile Deposit",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "tx-1781046374205",
-                    "type": "Debit",
-                    "amount": -5000000,
-                    "merchant": "Transfer to Acc #7111027548",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "tx-1781046233649",
-                    "type": "Credit",
-                    "amount": 7000000,
-                    "merchant": "Received from Monica Margie Julian",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "tx-1781046178783",
-                    "type": "Debit",
-                    "amount": -500000,
-                    "merchant": "Transfer to Acc #7111027548",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "tx-init",
-                    "type": "Credit",
-                    "amount": 4765239,
-                    "merchant": "Initial Account Funding Deposit",
-                    "date": "2026-06-09"
-                }
-            ]
-        },
-        {
-            "id": "1781045464529",
-            "fullName": "Monica Margie Julian",
-            "email": "monicamargiejuli6@gmail.com",
-            "password": "$2b$10$IxxFN0.RxKM6m9y01z763.64ZytNnsStcVkMtKugzWC/JcUQle6US",
-            "accountNumber": "7111027548",
-            "accountType": "High-Yield Vault Account",
-            "balance": 64685965,
-            "investmentPortfolio": 3400000,
-            "recentTransactions": [
-                {
-                    "id": "dep-1781047020557",
-                    "type": "Credit",
-                    "amount": 12000000,
-                    "merchant": "e-Check Mobile Deposit",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "dep-1781046958510",
-                    "type": "Credit",
-                    "amount": 100000,
-                    "merchant": "e-Check Mobile Deposit",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "bill-1781046910655",
-                    "type": "Debit",
-                    "amount": -3400,
-                    "merchant": "Utility Settlement: Ashford Realty Group Rentals",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "inv-1781046556165",
-                    "type": "Debit",
-                    "amount": -3400000,
-                    "merchant": "Allocation to Growth Index Portfolio",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "tx-1781046374205",
-                    "type": "Credit",
-                    "amount": 5000000,
-                    "merchant": "Received from AGU LINUS ONYEDIKACHI",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "tx-1781046233649",
-                    "type": "Debit",
-                    "amount": -7000000,
-                    "merchant": "Transfer to Acc #7746557146",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "tx-1781046178783",
-                    "type": "Credit",
-                    "amount": 500000,
-                    "merchant": "Received from AGU LINUS ONYEDIKACHI",
-                    "date": "2026-06-09"
-                },
-                {
-                    "id": "tx-init",
-                    "type": "Credit",
-                    "amount": 57489365,
-                    "merchant": "Initial Account Funding Deposit",
-                    "date": "2026-06-09"
-                }
-            ]
-        },
-        {
-            "id": "1781100751487",
-            "fullName": "Agu Chuchu",
-            "email": "aguchuchu2@gmail.com",
-            "password": "$2b$10$DpYb2.JkdJ9u.82BPy2WMe1mx52Cd7JPYYIISkpaxNlWElvnC881i",
-            "accountNumber": "7082061596",
-            "accountType": "Fixed Deposit With Interest",
-            "balance": 620209.89,
-            "investmentPortfolio": 0,
-            "recentTransactions": [
-                {
-                    "id": "TXN-293831",
-                    "type": "Debit",
-                    "method": "P2P Wire Transfer",
-                    "partyName": "Musa Desire",
-                    "accountNumber": "2037595479",
-                    "amount": -400,
-                    "merchant": "Transfer to Musa Desire",
-                    "date": "2026-06-14",
-                    "time": "16:44:04"
-                },
-                {
-                    "id": "TXN-972513",
-                    "type": "Debit",
-                    "method": "P2P Wire Transfer",
-                    "partyName": "AGU LINUS ONYEDIKACHI",
-                    "accountNumber": "7746557146",
-                    "amount": -400,
-                    "merchant": "Transfer to AGU LINUS ONYEDIKACHI",
-                    "date": "2026-06-14",
-                    "time": "16:40:15"
-                },
-                {
-                    "id": "TXN-669336",
-                    "type": "Credit",
-                    "method": "e-Check Deposit",
-                    "partyName": "AGU LINUS ONYEDIKACHI",
-                    "accountNumber": "7746557146",
-                    "amount": 2000,
-                    "merchant": "e-Check Mobile Deposit #551693",
-                    "date": "2026-06-14",
-                    "time": "16:36:03"
-                },
-                {
-                    "id": "TXN-197112",
-                    "type": "Credit",
-                    "method": "P2P Wire Transfer",
-                    "partyName": "AGU LINUS ONYEDIKACHI",
-                    "accountNumber": "7746557146",
-                    "amount": 500,
-                    "merchant": "Received from AGU LINUS ONYEDIKACHI",
-                    "date": "2026-06-14",
-                    "time": "16:33:13"
-                },
-                {
-                    "id": "tx-1781282756395",
-                    "type": "Credit",
-                    "amount": 3000,
-                    "merchant": "Received from AGU LINUS ONYEDIKACHI",
-                    "date": "2026-06-12"
-                },
-                {
-                    "id": "tx-1781266371122",
-                    "type": "Credit",
-                    "amount": 5000,
-                    "merchant": "Received from AGU LINUS ONYEDIKACHI",
-                    "date": "2026-06-12"
-                },
-                {
-                    "id": "tx-1781265670894",
-                    "type": "Credit",
-                    "amount": 600000,
-                    "merchant": "Received from AGU LINUS ONYEDIKACHI",
-                    "date": "2026-06-12"
-                },
-                {
-                    "id": "bill-1781100902255",
-                    "type": "Debit",
-                    "amount": -250,
-                    "merchant": "Utility Settlement: Electricity bill",
-                    "date": "2026-06-10"
-                },
-                {
-                    "id": "tx-init",
-                    "type": "Credit",
-                    "amount": 10759.89,
-                    "merchant": "Initial Account Funding Deposit",
-                    "date": "2026-06-10"
-                }
-            ]
-        },
-        {
-            "id": "1781101143265",
-            "fullName": "Musa Desire",
-            "email": "musadesire2@gmail.com",
-            "password": "$2b$10$3ANXYB/bm4VjYKTIKvXMAefjDfECG.XNhvMuE57aPcj9Kbe8tAfbG",
-            "accountNumber": "2037595479",
-            "accountType": "Accumulating funds",
-            "balance": 1513230.89,
-            "investmentPortfolio": 0,
-            "recentTransactions": [
-                {
-                    "id": "TXN-357992",
-                    "type": "Credit",
-                    "method": "Remote Capture Check",
-                    "partyName": "AGU LINUS ONYEDIKACHI",
-                    "accountNumber": "6231270836",
-                    "amount": 5000,
-                    "merchant": "Cashed Check #6231270836 from AGU LINUS ONYEDIKACHI",
-                    "date": "2026-06-19",
-                    "time": "19:30"
-                },
-                {
-                    "id": "TXN-293831",
-                    "type": "Credit",
-                    "method": "P2P Wire Transfer",
-                    "partyName": "Agu Chuchu",
-                    "accountNumber": "7082061596",
-                    "amount": 400,
-                    "merchant": "Received from Agu Chuchu",
-                    "date": "2026-06-14",
-                    "time": "16:44:04"
-                },
-                {
-                    "id": "tx-1781135206131",
-                    "type": "Credit",
-                    "amount": 1500000,
-                    "merchant": "Received from Agu Osinachi",
-                    "date": "2026-06-10"
-                },
-                {
-                    "id": "tx-init",
-                    "type": "Credit",
-                    "amount": 7830.89,
-                    "merchant": "Initial Account Funding Deposit",
-                    "date": "2026-06-10"
-                }
-            ]
-        },
-        {
-            "id": "1781135069652",
-            "fullName": "Agu Osinachi",
-            "email": "aguosinachi2@gmail.com",
-            "password": "$2b$10$hMj/Is8eF1X1sX0IyMiVn.kP0zSvq9rOVqM9CIB3FmSxQR/JwU08a",
-            "accountNumber": "6149578687",
-            "accountType": "Checking Account",
-            "balance": 38500000,
-            "investmentPortfolio": 0,
-            "recentTransactions": [
-                {
-                    "id": "tx-1781135206131",
-                    "type": "Debit",
-                    "amount": -1500000,
-                    "merchant": "Transfer to Acc #2037595479",
-                    "date": "2026-06-10"
-                },
-                {
-                    "id": "tx-init",
-                    "type": "Credit",
-                    "amount": 40000000,
-                    "merchant": "Initial Account Funding Deposit",
-                    "date": "2026-06-10"
-                }
-            ]
-        }
-    ],
-    "activeChecks": {
-        "6231270836": {
-            "issuerId": "1781003384818",
-            "issuerName": "AGU LINUS ONYEDIKACHI",
-            "amount": 5000,
-            "status": "REDEEMED"
-        },
-        "9449077164": {
-            "issuerId": "1781003384818",
-            "issuerName": "AGU LINUS ONYEDIKACHI",
-            "amount": 7000,
-            "status": "ACTIVE"
-        },
-        "7349517080": {
-            "issuerId": "1781003384818",
-            "issuerName": "AGU LINUS ONYEDIKACHI",
-            "amount": 444,
-            "status": "ACTIVE"
-        }
+[
+    {
+        "id": "USR-377954",
+        "email": "agulinus2@gmail.com",
+        "password": "$2b$10$rBvWZQULyzTKeBFbhunVoeb1s3YsB9UbTdWQrxE.T9ypW/ylEclwO",
+        "fullName": "AGU LINUS ONYEDIKACHI",
+        "accountNumber": "4786919023",
+        "accountType": "Premium Checking Portfolio",
+        "balance": 10000000071939.19,
+        "investedAssets": [
+            {
+                "assetClass": "stocks",
+                "assetId": "st_nvidia",
+                "ticker": "NVDA",
+                "name": "NVIDIA Corporation",
+                "amount": 5.024367,
+                "purchasePrice": 1990.300405501806
+            }
+        ],
+        "recentTransactions": [
+            {
+                "id": "TXN-519083",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-NVDA",
+                "amount": -10000,
+                "merchant": "Depl. Capital: NVIDIA Corporation (5.0244 Units)",
+                "date": "2026-06-30",
+                "time": "22:03:16"
+            },
+            {
+                "id": "TXN-366771",
+                "type": "Credit",
+                "method": "Portfolio Liquidation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "LIQ-AMZN",
+                "amount": 18142.73,
+                "merchant": "Liquidated All Units of Amazon.com Inc.",
+                "date": "2026-06-30",
+                "time": "22:02:05"
+            },
+            {
+                "id": "TXN-110527",
+                "type": "Credit",
+                "method": "Portfolio Liquidation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "LIQ-BTC",
+                "amount": 22841.74,
+                "merchant": "Liquidated All Units of Bitcoin",
+                "date": "2026-06-30",
+                "time": "22:01:39"
+            },
+            {
+                "id": "TXN-344874",
+                "type": "Debit",
+                "method": "Check Drawn",
+                "status": "Settled",
+                "partyName": "Musa Desire",
+                "accountNumber": "6145449113",
+                "amount": -200,
+                "merchant": "Check #23480271 Drawn by Musa Desire",
+                "date": "2026-06-30",
+                "time": "21:16:47"
+            },
+            {
+                "id": "TXN-596062",
+                "type": "Debit",
+                "method": "Utility Bill Settlement",
+                "status": "Cleared",
+                "partyName": "moving day transport",
+                "accountNumber": "UTILITY-CLEAR",
+                "amount": -1100,
+                "merchant": "Utility Settlement: moving day transport",
+                "date": "2026-06-30",
+                "time": "21:13:15"
+            },
+            {
+                "id": "TXN-872399",
+                "type": "Debit",
+                "method": "P2P Wire Transfer",
+                "status": "Processed",
+                "partyName": "Musa Desire",
+                "accountNumber": "6145449113",
+                "amount": -19,
+                "merchant": "Transfer to Musa Desire",
+                "date": "2026-06-29",
+                "time": "10:18:28"
+            },
+            {
+                "id": "TXN-244923",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-BTC",
+                "amount": -10000,
+                "merchant": "Depl. Capital: Bitcoin (0.1368 Units)",
+                "date": "2026-06-29",
+                "time": "10:15:45"
+            },
+            {
+                "id": "TXN-917669",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-AMZN",
+                "amount": -10000,
+                "merchant": "Depl. Capital: Amazon.com Inc. (23.9872 Units)",
+                "date": "2026-06-29",
+                "time": "08:33:14"
+            },
+            {
+                "id": "TXN-730855",
+                "type": "Credit",
+                "method": "Portfolio Liquidation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "LIQ-NVDA",
+                "amount": 60751.76,
+                "merchant": "Liquidated All Units of NVIDIA Corporation",
+                "date": "2026-06-29",
+                "time": "08:30:51"
+            },
+            {
+                "id": "TXN-470709",
+                "type": "Debit",
+                "method": "P2P Wire Transfer",
+                "status": "Processed",
+                "partyName": "Musa Desire",
+                "accountNumber": "6145449113",
+                "amount": -200,
+                "merchant": "Transfer to Musa Desire",
+                "date": "2026-06-29",
+                "time": "07:49:25"
+            },
+            {
+                "id": "TXN-176035",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-NVDA",
+                "amount": -10000,
+                "merchant": "Depl. Capital: NVIDIA Corporation (20.5121 Units)",
+                "date": "2026-06-24",
+                "time": "09:37:34"
+            },
+            {
+                "id": "TXN-343157",
+                "type": "Credit",
+                "method": "Portfolio Liquidation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "LIQ-BTC",
+                "amount": 28612.67,
+                "merchant": "Liquidated All Units of Bitcoin",
+                "date": "2026-06-24",
+                "time": "09:35:59"
+            },
+            {
+                "id": "TXN-875838",
+                "type": "Credit",
+                "method": "Portfolio Liquidation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "LIQ-TSLA",
+                "amount": 52963.44,
+                "merchant": "Liquidated All Units of Tesla Inc.",
+                "date": "2026-06-24",
+                "time": "09:35:51"
+            },
+            {
+                "id": "TXN-211902",
+                "type": "Debit",
+                "method": "Check Drawn",
+                "status": "Settled",
+                "partyName": "Musa Desire",
+                "accountNumber": "6145449113",
+                "amount": -500,
+                "merchant": "Check #9194451463 Drawn by Musa Desire",
+                "date": "2026-06-24",
+                "time": "09:05:00"
+            },
+            {
+                "id": "TXN-400319",
+                "type": "Debit",
+                "method": "P2P Wire Transfer",
+                "status": "Processed",
+                "partyName": "Musa Desire",
+                "accountNumber": "6145449113",
+                "amount": -3000,
+                "merchant": "Transfer to Musa Desire",
+                "date": "2026-06-24",
+                "time": "09:03:31"
+            },
+            {
+                "id": "TXN-200185",
+                "type": "Debit",
+                "method": "Utility Bill Settlement",
+                "status": "Cleared",
+                "partyName": "Electricity bill",
+                "accountNumber": "UTILITY-CLEAR",
+                "amount": -250,
+                "merchant": "Utility Settlement: Electricity bill",
+                "date": "2026-06-24",
+                "time": "08:56:04"
+            },
+            {
+                "id": "TXN-405675",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-TSLA",
+                "amount": -20000,
+                "merchant": "Depl. Capital: Tesla Inc. (159.9539 Units)",
+                "date": "2026-06-24",
+                "time": "21:56:20"
+            },
+            {
+                "id": "TXN-231398",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-BTC",
+                "amount": -20000,
+                "merchant": "Depl. Capital: Bitcoin (0.2937 Units)",
+                "date": "2026-06-24",
+                "time": "21:55:43"
+            },
+            {
+                "id": "TXN-323941",
+                "type": "Credit",
+                "method": "Portfolio Liquidation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "LIQ-SOL",
+                "amount": 7215.36,
+                "merchant": "Liquidated All Units of Solana",
+                "date": "2026-06-24",
+                "time": "21:54:57"
+            },
+            {
+                "id": "TXN-613057",
+                "type": "Debit",
+                "method": "Check Drawn",
+                "status": "Settled",
+                "partyName": "Musa Desire",
+                "accountNumber": "6145449113",
+                "amount": -4000,
+                "merchant": "Check #1758646332 Drawn by Musa Desire",
+                "date": "2026-06-23",
+                "time": "19:21:39"
+            },
+            {
+                "id": "TXN-661208",
+                "type": "Debit",
+                "method": "P2P Wire Transfer",
+                "status": "Processed",
+                "partyName": "Musa Desire",
+                "accountNumber": "6145449113",
+                "amount": -3000,
+                "merchant": "Transfer to Musa Desire",
+                "date": "2026-06-23",
+                "time": "19:19:41"
+            },
+            {
+                "id": "TXN-895578",
+                "type": "Debit",
+                "method": "Utility Bill Settlement",
+                "status": "Cleared",
+                "partyName": "gas",
+                "accountNumber": "UTILITY-CLEAR",
+                "amount": -200,
+                "merchant": "Utility Settlement: gas",
+                "date": "2026-06-23",
+                "time": "19:13:53"
+            },
+            {
+                "id": "TXN-216233",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-SOL",
+                "amount": -20000,
+                "merchant": "Depl. Capital: Solana (46.3477 Units)",
+                "date": "2026-06-23",
+                "time": "19:09:03"
+            },
+            {
+                "id": "TXN-400916",
+                "type": "Credit",
+                "method": "Portfolio Liquidation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "LIQ-SOL",
+                "amount": 13880.49,
+                "merchant": "Liquidated All Units of Solana",
+                "date": "2026-06-23",
+                "time": "19:00:13"
+            },
+            {
+                "id": "TXN-147215",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-SOL",
+                "amount": -20000,
+                "merchant": "Depl. Capital: Solana (89.1089 Units)",
+                "date": "2026-06-23",
+                "time": "18:59:41"
+            }
+        ]
+    },
+    {
+        "id": "USR-272305",
+        "email": "musadesire2@gmail.com",
+        "password": "$2b$10$bqiJDxEwH5BEGNzRN6OHe.JEbM6SXx8hprNGaKnMBsR5m1w7Ngkqy",
+        "fullName": "Musa Desire",
+        "accountNumber": "6145449113",
+        "accountType": "Premium Checking Portfolio",
+        "balance": 8560.91,
+        "investedAssets": [
+            {
+                "assetClass": "stocks",
+                "assetId": "st_tesla",
+                "ticker": "TSLA",
+                "name": "Tesla Inc.",
+                "amount": 0.743845,
+                "purchasePrice": 1344.366239922934
+            },
+            {
+                "assetClass": "bonds",
+                "assetId": "bd_us10y",
+                "ticker": "US10Y",
+                "name": "US 10-Year Treasury Bond",
+                "amount": 9.604819,
+                "purchasePrice": 104.11439831152228
+            }
+        ],
+        "recentTransactions": [
+            {
+                "id": "TXN-299611",
+                "type": "Debit",
+                "method": "Utility Bill Settlement",
+                "status": "Cleared",
+                "partyName": "gas",
+                "accountNumber": "UTILITY-CLEAR",
+                "amount": -29,
+                "merchant": "Utility Settlement: gas",
+                "date": "2026-06-30",
+                "time": "21:39:17"
+            },
+            {
+                "id": "TXN-748438",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-US10Y",
+                "amount": -1000,
+                "merchant": "Depl. Capital: US 10-Year Treasury Bond (9.6048 Units)",
+                "date": "2026-06-30",
+                "time": "21:18:12"
+            },
+            {
+                "id": "TXN-251598",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-TSLA",
+                "amount": -1000,
+                "merchant": "Depl. Capital: Tesla Inc. (0.7438 Units)",
+                "date": "2026-06-30",
+                "time": "21:17:33"
+            },
+            {
+                "id": "TXN-344874",
+                "type": "Credit",
+                "method": "e-Check Deposit",
+                "status": "Settled",
+                "partyName": "AGU LINUS ONYEDIKACHI",
+                "accountNumber": "4786919023",
+                "amount": 200,
+                "merchant": "e-Check Mobile Deposit #23480271",
+                "date": "2026-06-30",
+                "time": "21:16:47"
+            },
+            {
+                "id": "TXN-872399",
+                "type": "Credit",
+                "method": "P2P Wire Transfer",
+                "status": "Processed",
+                "partyName": "AGU LINUS ONYEDIKACHI",
+                "accountNumber": "4786919023",
+                "amount": 19,
+                "merchant": "Received from AGU LINUS ONYEDIKACHI",
+                "date": "2026-06-29",
+                "time": "10:18:28"
+            },
+            {
+                "id": "TXN-470709",
+                "type": "Credit",
+                "method": "P2P Wire Transfer",
+                "status": "Processed",
+                "partyName": "AGU LINUS ONYEDIKACHI",
+                "accountNumber": "4786919023",
+                "amount": 200,
+                "merchant": "Received from AGU LINUS ONYEDIKACHI",
+                "date": "2026-06-29",
+                "time": "07:49:25"
+            },
+            {
+                "id": "TXN-211902",
+                "type": "Credit",
+                "method": "e-Check Deposit",
+                "status": "Settled",
+                "partyName": "AGU LINUS ONYEDIKACHI",
+                "accountNumber": "4786919023",
+                "amount": 500,
+                "merchant": "e-Check Mobile Deposit #9194451463",
+                "date": "2026-06-24",
+                "time": "09:05:00"
+            },
+            {
+                "id": "TXN-400319",
+                "type": "Credit",
+                "method": "P2P Wire Transfer",
+                "status": "Processed",
+                "partyName": "AGU LINUS ONYEDIKACHI",
+                "accountNumber": "4786919023",
+                "amount": 3000,
+                "merchant": "Received from AGU LINUS ONYEDIKACHI",
+                "date": "2026-06-24",
+                "time": "09:03:31"
+            },
+            {
+                "id": "TXN-170668",
+                "type": "Credit",
+                "method": "Portfolio Liquidation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "LIQ-TSLA",
+                "amount": 1670.91,
+                "merchant": "Liquidated All Units of Tesla Inc.",
+                "date": "2026-06-24",
+                "time": "21:38:03"
+            },
+            {
+                "id": "TXN-312478",
+                "type": "Debit",
+                "method": "Asset Allocation",
+                "status": "Settled",
+                "partyName": "Apex Capital Clearing Desk",
+                "accountNumber": "BUY-TSLA",
+                "amount": -2000,
+                "merchant": "Depl. Capital: Tesla Inc. (5.9725 Units)",
+                "date": "2026-06-23",
+                "time": "19:22:11"
+            },
+            {
+                "id": "TXN-613057",
+                "type": "Credit",
+                "method": "e-Check Deposit",
+                "status": "Settled",
+                "partyName": "AGU LINUS ONYEDIKACHI",
+                "accountNumber": "4786919023",
+                "amount": 4000,
+                "merchant": "e-Check Mobile Deposit #1758646332",
+                "date": "2026-06-23",
+                "time": "19:21:39"
+            },
+            {
+                "id": "TXN-661208",
+                "type": "Credit",
+                "method": "P2P Wire Transfer",
+                "status": "Processed",
+                "partyName": "AGU LINUS ONYEDIKACHI",
+                "accountNumber": "4786919023",
+                "amount": 3000,
+                "merchant": "Received from AGU LINUS ONYEDIKACHI",
+                "date": "2026-06-23",
+                "time": "19:19:41"
+            }
+        ]
     }
-}
+]
